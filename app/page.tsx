@@ -54,45 +54,37 @@ export default async function Home({ searchParams }: HomeProps) {
         resolvedSessionFile ? loadSessionFile(resolvedSessionFile) : null,
         getSessionTitlesByFile(switcherSessionFiles),
     ])
-
-    if (!session) {
-        return (
-            <>
-                <SessionNavigationPanel />
-                <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
-                    <SessionFileSwitcher
-                        sessionFiles={sessionFiles}
-                        currentSessionFile={resolvedSessionFile}
-                        sessionTitlesByFile={sessionTitlesByFile}
-                        sessionRootDirectory={sessionRootDirectory}
-                    />
-                    <SessionEmptyState sessionFile={resolvedSessionFile} />
-                </main>
-            </>
-        )
-    }
-
-    const messageCount = session.events.filter(
-        (event) => event.kind === "message",
-    ).length
-    const showWorkingState = shouldShowSessionWorkingState(session)
+    const messageCount = session
+        ? session.events.filter((event) => event.kind === "message").length
+        : 0
+    const showWorkingState = session
+        ? shouldShowSessionWorkingState(session)
+        : false
 
     return (
         <>
             <SessionNavigationPanel />
-            <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
+            <main className="Home mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
                 <SessionFileSwitcher
                     sessionFiles={sessionFiles}
-                    currentSessionFile={session.filePath}
+                    currentSessionFile={
+                        session?.filePath ?? resolvedSessionFile
+                    }
                     sessionTitlesByFile={sessionTitlesByFile}
                     sessionRootDirectory={sessionRootDirectory}
                 />
-                <SessionOverview
-                    session={session}
-                    messageCount={messageCount}
-                />
-                <SessionEventList events={session.events} />
-                {showWorkingState ? <SessionWorkingState /> : null}
+                {session ? (
+                    <>
+                        <SessionOverview
+                            session={session}
+                            messageCount={messageCount}
+                        />
+                        <SessionEventList events={session.events} />
+                        {showWorkingState ? <SessionWorkingState /> : null}
+                    </>
+                ) : (
+                    <SessionEmptyState sessionFile={resolvedSessionFile} />
+                )}
             </main>
         </>
     )

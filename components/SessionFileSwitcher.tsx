@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useTransition, type ChangeEvent } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { formatRelativeTimestamp } from "@/lib/utils"
+import { SessionKeyValueRows } from "@/components/SessionKeyValueRows"
+import { formatRelativeTimestamp, formatTimestamp } from "@/lib/utils"
 
 type SessionFileSwitcherProps = {
     sessionFiles: string[]
@@ -23,34 +24,6 @@ function getFileName(filePath: string) {
     const pathSegments = getPathSegments(filePath)
 
     return pathSegments[pathSegments.length - 1] ?? normalizePath(filePath)
-}
-
-function getRelativeSessionFilePath(
-    filePath: string,
-    sessionRootDirectory: string,
-) {
-    const normalizedFilePath = normalizePath(filePath)
-    const normalizedSessionRootDirectory = normalizePath(sessionRootDirectory)
-    const sessionRootPrefix = `${normalizedSessionRootDirectory}/`
-
-    if (normalizedFilePath.startsWith(sessionRootPrefix)) {
-        return normalizedFilePath.slice(sessionRootPrefix.length)
-    }
-
-    return normalizedFilePath
-}
-
-function getSessionDirectoryName(
-    filePath: string,
-    sessionRootDirectory: string,
-) {
-    const relativeFilePath = getRelativeSessionFilePath(
-        filePath,
-        sessionRootDirectory,
-    )
-    const pathSegments = getPathSegments(relativeFilePath)
-
-    return pathSegments[pathSegments.length - 2] ?? ""
 }
 
 function formatSessionDirectoryLabel(sessionDirectoryName: string) {
@@ -87,6 +60,19 @@ function formatSessionDirectoryLabel(sessionDirectoryName: string) {
     return `${groupLabel} / ${nameParts.join("-")}`
 }
 
+function getProjectLabel(filePath: string, sessionRootDirectory: string) {
+    const normalizedFilePath = normalizePath(filePath)
+    const sessionRootPrefix = `${normalizePath(sessionRootDirectory)}/`
+    const relativeFilePath = normalizedFilePath.startsWith(sessionRootPrefix)
+        ? normalizedFilePath.slice(sessionRootPrefix.length)
+        : normalizedFilePath
+    const pathSegments = getPathSegments(relativeFilePath)
+
+    return formatSessionDirectoryLabel(
+        pathSegments[pathSegments.length - 2] ?? "",
+    )
+}
+
 function getSessionTimestampValue(filePath: string) {
     const fileName = getFileName(filePath)
     const separatorIndex = fileName.indexOf("_")
@@ -114,14 +100,11 @@ function getSessionTimestampValue(filePath: string) {
 function formatSessionFileLabel(
     filePath: string,
     sessionRootDirectory: string,
-    renderedAt: number,
     sessionTitlesByFile: Record<string, string>,
 ) {
     const fileName = getFileName(filePath)
     const separatorIndex = fileName.indexOf("_")
-    const projectLabel = formatSessionDirectoryLabel(
-        getSessionDirectoryName(filePath, sessionRootDirectory),
-    )
+    const projectLabel = getProjectLabel(filePath, sessionRootDirectory)
     const sessionTitle = sessionTitlesByFile[filePath]?.trim()
 
     if (separatorIndex === -1) {
@@ -132,7 +115,7 @@ function formatSessionFileLabel(
 
     const timestamp = getSessionTimestampValue(filePath)
     const relativeTimestamp = timestamp
-        ? formatRelativeTimestamp(timestamp, renderedAt)
+        ? formatRelativeTimestamp(timestamp)
         : fileName.slice(0, separatorIndex)
     const id = fileName
         .slice(separatorIndex + 1)
@@ -153,36 +136,48 @@ export function SessionFileSwitcher({
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const [isPending, startTransition] = useTransition()
-    const [renderedAt] = useState(() => Date.now())
-    const selectableSessionFiles = useMemo(
-        () =>
-            Array.from(
-                new Set(
-                    currentSessionFile
-                        ? [currentSessionFile, ...sessionFiles]
-                        : sessionFiles,
-                ),
-            ),
-        [currentSessionFile, sessionFiles],
-    )
-    const latestSessionFile = sessionFiles[0]
-    const currentSessionLabel = currentSessionFile
-        ? formatSessionFileLabel(
-              currentSessionFile,
-              sessionRootDirectory,
-              renderedAt,
-              sessionTitlesByFile,
-          )
-        : null
     const [pendingSessionFile, setPendingSessionFile] = useState<string | null>(
         null,
     )
+    const selectableSessionOptions = useMemo(() => {
+        const selectableSessionFiles = Array.from(
+            new Set(
+                currentSessionFile
+                    ? [currentSessionFile, ...sessionFiles]
+                    : sessionFiles,
+            ),
+        )
+
+        return selectableSessionFiles.map((filePath) => {
+            const timestamp = getSessionTimestampValue(filePath)
+
+            return {
+                filePath,
+                isLatest: filePath === sessionFiles[0],
+                label: formatSessionFileLabel(
+                    filePath,
+                    sessionRootDirectory,
+                    sessionTitlesByFile,
+                ),
+                title: timestamp ? formatTimestamp(timestamp) : undefined,
+            }
+        })
+    }, [
+        currentSessionFile,
+        sessionFiles,
+        sessionRootDirectory,
+        sessionTitlesByFile,
+    ])
     const selectedSessionFile =
         pendingSessionFile &&
         pendingSessionFile !== currentSessionFile &&
-        selectableSessionFiles.includes(pendingSessionFile)
+        selectableSessionOptions.some(
+            ({ filePath }) => filePath === pendingSessionFile,
+        )
             ? pendingSessionFile
-            : (currentSessionFile ?? selectableSessionFiles[0] ?? "")
+            : (currentSessionFile ??
+              selectableSessionOptions[0]?.filePath ??
+              "")
 
     function handleChange(event: ChangeEvent<HTMLSelectElement>) {
         const nextSessionFile = event.target.value
@@ -211,10 +206,10 @@ export function SessionFileSwitcher({
     }
 
     return (
-        <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <section className="SessionFileSwitcher rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             {isPending ? <p>Switching session...</p> : null}
 
-            {selectableSessionFiles.length > 0 ? (
+            {selectableSessionOptions.length > 0 ? (
                 <div className="mt-4 flex flex-col gap-3">
                     <label className="sr-only" htmlFor="session-file-select">
                         Session file
@@ -227,18 +222,19 @@ export function SessionFileSwitcher({
                         disabled={isPending}
                         className="min-w-0 flex-1 rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition focus:border-sky-500 disabled:cursor-wait disabled:opacity-75 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
                     >
-                        {selectableSessionFiles.map((filePath) => (
-                            <option key={filePath} value={filePath}>
-                                {filePath === latestSessionFile
-                                    ? `Latest overall · ${formatSessionFileLabel(filePath, sessionRootDirectory, renderedAt, sessionTitlesByFile)}`
-                                    : formatSessionFileLabel(
-                                          filePath,
-                                          sessionRootDirectory,
-                                          renderedAt,
-                                          sessionTitlesByFile,
-                                      )}
-                            </option>
-                        ))}
+                        {selectableSessionOptions.map(
+                            ({ filePath, isLatest, label, title }) => (
+                                <option
+                                    key={filePath}
+                                    value={filePath}
+                                    title={title}
+                                >
+                                    {isLatest
+                                        ? `Latest overall · ${label}`
+                                        : label}
+                                </option>
+                            ),
+                        )}
                     </select>
                 </div>
             ) : (
@@ -247,28 +243,17 @@ export function SessionFileSwitcher({
                 </p>
             )}
 
-            {currentSessionLabel || currentSessionFile ? (
-                <div className="mt-3 grid gap-2 text-xs">
-                    <div>
-                        <span className="font-medium text-zinc-950 dark:text-zinc-50">
-                            root:
-                        </span>
-                        <span className="ml-2 break-all font-mono">
-                            {sessionRootDirectory}
-                        </span>
-                    </div>
-                    {currentSessionFile ? (
-                        <div>
-                            <span className="font-medium text-zinc-950 dark:text-zinc-50">
-                                file:
-                            </span>
-                            <span className="ml-2 break-all font-mono">
-                                {currentSessionFile}
-                            </span>
-                        </div>
-                    ) : null}
-                </div>
-            ) : null}
+            <SessionKeyValueRows
+                items={
+                    currentSessionFile
+                        ? [
+                              { label: "root", value: sessionRootDirectory },
+                              { label: "file", value: currentSessionFile },
+                          ]
+                        : []
+                }
+                className="mt-3 grid gap-2 text-xs"
+            />
         </section>
     )
 }
