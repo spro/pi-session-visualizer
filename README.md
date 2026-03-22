@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pi Session Visualizer
 
-## Getting Started
+A minimal Next.js app for visualizing Pi coding sessions.
 
-First, run the development server:
+Loads recent Pi session files directly from disk, lets you switch between them, and displays incoming and outgoing messages.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+By default it opens the newest session for the current project, falling back to the newest session overall if needed. You can switch across all projects with the in-app session picker or load a specific file with `?file=/absolute/path/to/session.jsonl`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Implemented visualizations
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Collapsible message cards, collapsed by default
+- Full JSON rendering for message `content`
+- Tool result entries (read, write, edit, bash)
+    - Edit diff view
+    - Bash execution entries
+- Branch summary and compaction summary entries
+- Custom extension entries
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## File organization
 
-## Learn More
+The project is organized around a simple split of app shell, UI components, and reusable library code.
 
-To learn more about Next.js, take a look at the following resources:
+Keep components relatively small and split into well named files.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### `app/`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Keep App Router entry files here:
 
-## Deploy on Vercel
+- `app/page.tsx` for top-level page data loading and composition
+- `app/layout.tsx` for the global app shell
+- `app/globals.css` for global styles
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This directory should stay relatively thin and avoid accumulating large UI implementations or reusable parsing helpers.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### `components/`
+
+Keep React components in `components/UpperCamelCase.tsx`.
+
+Examples:
+
+- `SessionNavigationPanel.tsx`
+- `SessionOverview.tsx`
+- `SessionEventCard.tsx`
+- `SessionEventHeader.tsx`
+- `SessionEventContent.tsx`
+
+Component files should stay focused and relatively small. When a component starts handling multiple distinct rendering concerns, split those concerns into nearby component files.
+
+### `lib/`
+
+Keep reusable non-component code here.
+
+Current organization:
+
+- `session.ts` — top-level session loading API
+- `sessionParser.ts` — parsing and normalization from raw session entries to rendered events
+- `sessionEventHelpers.ts` — event display/state helper logic
+- `sessionEventStyles.ts` — badge/style class helpers
+- `utils.ts` — general-purpose shared utilities
+- `types.ts` — shared TypeScript types
+
+As a rule of thumb:
+
+- reusable logic goes in `lib/`
+- UI goes in `components/`
+- App Router entrypoints stay in `app/`
