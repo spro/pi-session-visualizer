@@ -1,4 +1,5 @@
 import { isStopAssistantEvent } from "@/lib/sessionEventPredicates"
+import type { SessionCollapsedGroupSecondaryLabelKind } from "@/lib/sessionTimeline"
 import { getToolResultTone } from "@/lib/sessionToolPresentation"
 import { getSessionAbsoluteBadgeClassName } from "@/lib/sessionUiStyles"
 import type { SessionEvent } from "@/lib/types"
@@ -31,6 +32,20 @@ const surfaceTintClasses = {
     zinc: "bg-zinc-50/80 dark:bg-zinc-900/50",
 } as const
 
+const badgeToneTextClasses = {
+    sky: "text-sky-700 dark:text-sky-300",
+    emerald: "text-emerald-700 dark:text-emerald-300",
+    fuchsia: "text-fuchsia-700 dark:text-fuchsia-300",
+    amber: "text-amber-700 dark:text-amber-300",
+    teal: "text-teal-700 dark:text-teal-300",
+    violet: "text-violet-700 dark:text-violet-300",
+    cyan: "text-cyan-700 dark:text-cyan-300",
+    purple: "text-purple-700 dark:text-purple-300",
+    blue: "text-blue-700 dark:text-blue-300",
+    pink: "text-pink-700 dark:text-pink-300",
+    zinc: "text-zinc-600 dark:text-zinc-300",
+} as const
+
 type BadgeTone = keyof typeof badgeToneClasses
 type SurfaceTintTone = keyof typeof surfaceTintClasses
 
@@ -41,6 +56,10 @@ export const sessionTimeClassName = "font-mono text-zinc-400"
 
 function getBadgeToneClass(tone: BadgeTone) {
     return badgeToneClasses[tone]
+}
+
+function getBadgeToneTextClass(tone: BadgeTone) {
+    return badgeToneTextClasses[tone]
 }
 
 export function getSurfaceTintClass(tone: SurfaceTintTone) {
@@ -141,4 +160,29 @@ export function getPartContentTypeBadgeClass(contentType: string) {
 
 export function getStatusBadgeClass() {
     return getBadgeToneClass("zinc")
+}
+
+export function getCollapsedSummaryLabelClass(
+    kind: SessionCollapsedGroupSecondaryLabelKind,
+) {
+    switch (kind) {
+        case "assistant":
+            return getBadgeToneTextClass("violet")
+        case "toolResult":
+        case "branchSummary":
+        case "compactionSummary":
+            return getBadgeToneTextClass("teal")
+        case "bashExecution":
+            return getBadgeToneTextClass("amber")
+        case "custom":
+            return getBadgeToneTextClass("fuchsia")
+        case "model_change":
+            return getBadgeToneTextClass("cyan")
+        case "thinking_level_change":
+            return getBadgeToneTextClass("purple")
+        case "unknown":
+            return getBadgeToneTextClass("zinc")
+        case "elapsedDuration":
+            return "font-mono text-zinc-500 dark:text-zinc-400"
+    }
 }

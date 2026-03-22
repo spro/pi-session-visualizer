@@ -1,11 +1,33 @@
 import { isConversationBoundaryEvent } from "@/lib/sessionEventPredicates"
 import type { SessionEvent } from "@/lib/types"
-import { formatCountLabel } from "@/lib/utils"
+import { formatCountLabel, formatElapsedDuration } from "@/lib/utils"
 
 type CountLabel = {
     singular: string
     plural: string
 }
+
+export type SessionCollapsedGroupSecondaryLabelKind =
+    | "assistant"
+    | "toolResult"
+    | "bashExecution"
+    | "custom"
+    | "branchSummary"
+    | "compactionSummary"
+    | "model_change"
+    | "thinking_level_change"
+    | "unknown"
+    | "elapsedDuration"
+
+export type SessionCollapsedGroupSecondaryLabel = {
+    kind: SessionCollapsedGroupSecondaryLabelKind
+    label: string
+}
+
+type BreakdownKey = Exclude<
+    SessionCollapsedGroupSecondaryLabelKind,
+    "elapsedDuration"
+>
 
 export type SessionTimelineItem =
     | {
@@ -21,10 +43,10 @@ export type SessionTimelineItem =
 
 export type SessionCollapsedGroupSummary = {
     primaryLabel: string
-    breakdown: string[]
+    secondaryLabels: SessionCollapsedGroupSecondaryLabel[]
 }
 
-const breakdownLabelByKey: Record<string, CountLabel> = {
+const breakdownLabelByKey: Record<BreakdownKey, CountLabel> = {
     assistant: {
         singular: "assistant message",
         plural: "assistant messages",
@@ -63,7 +85,7 @@ const breakdownLabelByKey: Record<string, CountLabel> = {
     },
 }
 
-const breakdownOrder = [
+const breakdownOrder: BreakdownKey[] = [
     "assistant",
     "toolResult",
     "bashExecution",
@@ -75,7 +97,7 @@ const breakdownOrder = [
     "unknown",
 ]
 
-function getBreakdownKey(event: SessionEvent) {
+function getBreakdownKey(event: SessionEvent): BreakdownKey {
     if (event.kind === "model_change") {
         return "model_change"
     }
@@ -84,7 +106,17 @@ function getBreakdownKey(event: SessionEvent) {
         return "thinking_level_change"
     }
 
-    return event.role ?? "unknown"
+    switch (event.role) {
+        case "assistant":
+        case "toolResult":
+        case "bashExecution":
+        case "custom":
+        case "branchSummary":
+        case "compactionSummary":
+            return event.role
+        default:
+            return "unknown"
+    }
 }
 
 export function buildSessionTimelineItems(events: SessionEvent[]) {
@@ -156,20 +188,34 @@ export function getCollapsedGroupSummary(
                 )
               : `${formatCountLabel(messageCount, "message", "messages")} + ${formatCountLabel(sessionChangeCount, "change", "changes")} collapsed`
 
-    const breakdown = breakdownOrder
-        .filter((key) => countsByKey.has(key))
-        .map((key) =>
-            formatCountLabel(
-                countsByKey.get(key) ?? 0,
-                breakdownLabelByKey[key]?.singular ??
-                    breakdownLabelByKey.unknown.singular,
-                breakdownLabelByKey[key]?.plural ??
-                    breakdownLabelByKey.unknown.plural,
-            ),
-        )
+    const secondaryLabels: SessionCollapsedGroupSecondaryLabel[] =
+        breakdownOrder
+            .filter((key) => countsByKey.has(key))
+            .map((key) => ({
+                kind: key,
+                label: formatCountLabel(
+                    countsByKey.get(key) ?? 0,
+                    breakdownLabelByKey[key]?.singular ??
+                        breakdownLabelByKey.unknown.singular,
+                    breakdownLabelByKey[key]?.plural ??
+                        breakdownLabelByKey.unknown.plural,
+                ),
+            }))
+
+    const elapsedDuration = formatElapsedDuration(
+        events[0].timestamp,
+        events[events.length - 1].timestamp,
+    )
+
+    if (elapsedDuration) {
+        secondaryLabels.push({
+            kind: "elapsedDuration",
+            label: elapsedDuration,
+        })
+    }
 
     return {
         primaryLabel,
-        breakdown,
+        secondaryLabels,
     }
 }

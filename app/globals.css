@@ -77,3 +77,50 @@ a {
 .streamdown-message li + li {
     margin-top: 0.05rem;
 }
+
+.SessionCollapsedEventGroup .SessionCollapsedEventGroup-pill {
+    transition:
+        opacity 150ms ease,
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.SessionCollapsedEventGroup[open] .SessionCollapsedEventGroup-pill {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+.SessionCollapsedEventGroup:not([open]) .SessionCollapsedEventGroup-pill {
+    opacity: 0.58;
+    background-color: #f4f4f5;
+    border-color: #e4e4e7;
+}
+
+.SessionCollapsedEventGroup:not([open])
+    summary:hover
+    .SessionCollapsedEventGroup-pill,
+.SessionCollapsedEventGroup:not([open])
+    summary:focus-visible
+    .SessionCollapsedEventGroup-pill {
+    opacity: 0.8;
+}
+
+.SessionCollapsedEventGroup .SessionCollapsedEventGroup-indicator {
+    transition: transform 150ms ease;
+}
+
+.SessionCollapsedEventGroup[open] .SessionCollapsedEventGroup-indicator {
+    transform: rotate(90deg);
+}
+
+@media (prefers-color-scheme: dark) {
+    .SessionCollapsedEventGroup[open] .SessionCollapsedEventGroup-pill {
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.24);
+    }
+
+    .SessionCollapsedEventGroup:not([open]) .SessionCollapsedEventGroup-pill {
+        background-color: rgb(24 24 27 / 0.72);
+        border-color: #27272a;
+    }
+}
