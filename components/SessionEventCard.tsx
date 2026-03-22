@@ -35,7 +35,7 @@ export function SessionEventCard({
             data-session-event-role={event.role ?? "unknown"}
             data-session-stop-reason={event.stopReason ?? undefined}
             data-session-user-message={isUserMessage ? "true" : undefined}
-            className={`overflow-hidden rounded-3xl border bg-white shadow-sm dark:bg-zinc-950 ${borderClassName} ${
+            className={`SessionEventCard overflow-hidden rounded-3xl border bg-white shadow-sm dark:bg-zinc-950 ${borderClassName} ${
                 isUserMessage ? "ml-auto w-full max-w-[88%]" : "w-full"
             }`}
         >

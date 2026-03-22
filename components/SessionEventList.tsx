@@ -12,7 +12,7 @@ export function SessionEventList({ events }: SessionEventListProps) {
     const timelineItems = buildSessionTimelineItems(events)
 
     return (
-        <section className="space-y-4">
+        <section className="SessionEventList space-y-4">
             {timelineItems.map((item) =>
                 item.type === "event" ? (
                     <SessionEventCard

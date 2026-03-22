@@ -4,7 +4,7 @@ type SessionEmptyStateProps = {
 
 export function SessionEmptyState({ sessionFile }: SessionEmptyStateProps) {
     return (
-        <section className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <section className="SessionEmptyState rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
                 No session found
             </h1>

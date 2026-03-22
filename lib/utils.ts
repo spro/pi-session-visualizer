@@ -102,3 +102,9 @@ export function stringifyJson(value: unknown) {
 
     return JSON.stringify(value, null, 2)
 }
+
+export function joinClassNames(
+    ...values: Array<string | false | null | undefined>
+) {
+    return values.filter(Boolean).join(" ")
+}
