@@ -42,6 +42,7 @@ type ToolResultTone = "sky" | "emerald" | "fuchsia" | "amber" | "teal"
 export const eventPartSectionClassName = "px-6 py-5"
 export const eventPartBadgeOffsetClassName = "top-5 right-6"
 export const eventPartBadgeContentInsetClassName = "pr-20"
+export const sessionTimeClassName = "font-mono text-zinc-400"
 
 const partContentTypeBadgeBaseClassName =
     "pointer-events-none absolute rounded-full px-2.5 py-1 text-xs font-medium normal-case tracking-normal"

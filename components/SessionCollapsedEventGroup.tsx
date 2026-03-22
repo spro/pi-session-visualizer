@@ -3,6 +3,7 @@ import { shouldDefaultOpenEvent } from "@/lib/sessionEventHelpers"
 import { getCollapsedGroupSummary } from "@/lib/sessionTimeline"
 import type { SessionEvent } from "@/lib/types"
 import { formatElapsedDuration } from "@/lib/utils"
+import { sessionTimeClassName } from "@/lib/sessionEventStyles"
 
 type SessionCollapsedEventGroupProps = {
     events: SessionEvent[]
@@ -18,12 +19,12 @@ export function SessionCollapsedEventGroup({
     )
 
     return (
-        <details className="mx-auto w-full max-w-4xl rounded-3xl border border-dashed border-zinc-300 bg-zinc-50/80 p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900/50">
+        <details className="SessionCollapsedEventGroup mx-auto w-full max-w-4xl rounded-3xl">
             <summary className="cursor-pointer list-none">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="flex flex-wrap items-center gap-2 text-xs">
-                            <span className="rounded-full bg-zinc-900 px-3 py-1.5 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900">
+                            <span className="rounded-full bg-zinc-900 px-3 py-1.5 font-medium text-white dark:bg-zinc-400 dark:text-zinc-900">
                                 {summary.primaryLabel}
                             </span>
                             {summary.breakdown.map((item) => (
@@ -37,22 +38,20 @@ export function SessionCollapsedEventGroup({
                         </div>
                     </div>
                     {elapsedDuration ? (
-                        <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                        <span className={sessionTimeClassName}>
                             {elapsedDuration}
                         </span>
                     ) : null}
                 </div>
             </summary>
-            <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800">
-                <div className="space-y-4">
-                    {events.map((event) => (
-                        <SessionEventCard
-                            key={event.id}
-                            event={event}
-                            defaultOpen={shouldDefaultOpenEvent(event)}
-                        />
-                    ))}
-                </div>
+            <div className="mt-4 border-t border-zinc-200 dark:border-zinc-800">
+                {events.map((event) => (
+                    <SessionEventCard
+                        key={event.id}
+                        event={event}
+                        defaultOpen={shouldDefaultOpenEvent(event)}
+                    />
+                ))}
             </div>
         </details>
     )
