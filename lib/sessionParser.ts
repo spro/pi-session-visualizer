@@ -127,6 +127,7 @@ export function toSessionEvent(
                 stopReason,
                 isError: message.isError,
                 meta: message.isError ? "error" : undefined,
+                rawEntry: entry,
             }
         }
 
@@ -150,6 +151,7 @@ export function toSessionEvent(
                     },
                 ].filter((part) => part.body),
                 stopReason,
+                rawEntry: entry,
             }
         }
 
@@ -174,6 +176,7 @@ export function toSessionEvent(
                     },
                 ].filter((part) => part.body),
                 stopReason,
+                rawEntry: entry,
             }
         }
 
@@ -186,6 +189,7 @@ export function toSessionEvent(
                 label: `custom · ${message.customType ?? "entry"}`,
                 parts: getMessageContentParts(message.content),
                 stopReason,
+                rawEntry: entry,
             }
         }
 
@@ -197,6 +201,7 @@ export function toSessionEvent(
             label: message.role,
             parts: getMessageContentParts(message.content),
             stopReason,
+            rawEntry: entry,
         }
     }
 
@@ -208,6 +213,7 @@ export function toSessionEvent(
             label: "model change",
             body: `${entry.provider ?? "unknown"} / ${entry.modelId ?? "unknown"}`,
             parts: [],
+            rawEntry: entry,
         }
     }
 
@@ -219,6 +225,7 @@ export function toSessionEvent(
             label: "thinking level",
             body: entry.thinkingLevel ?? "unknown",
             parts: [],
+            rawEntry: entry,
         }
     }
 

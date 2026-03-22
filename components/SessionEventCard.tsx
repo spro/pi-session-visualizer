@@ -18,7 +18,10 @@ export function SessionEventCard({
     defaultOpen,
 }: SessionEventCardProps) {
     const [showRawJson, setShowRawJson] = useState(false)
-    const rawJson = useMemo(() => stringifyJson(event), [event])
+    const rawJson = useMemo(
+        () => stringifyJson(event.rawEntry),
+        [event.rawEntry],
+    )
     const isUserMessage = event.role === "user"
     const borderClassName = getEventCardBorderClass(event)
 
