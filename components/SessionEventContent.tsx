@@ -2,6 +2,7 @@ import {
     eventPartBadgeContentInsetClassName,
     getStatusBadgeClass,
 } from "@/lib/sessionEventStyles"
+import { getSessionAbsoluteBadgeClassName } from "@/lib/sessionUiStyles"
 import { SessionEventPartContent } from "@/components/SessionEventPartContent"
 import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
 import type { SessionEvent } from "@/lib/types"
@@ -26,7 +27,10 @@ export function SessionEventContent({
             <div className={eventSectionClassName}>
                 <div className="relative px-6 py-5">
                     <span
-                        className={`pointer-events-none absolute top-0 right-0 rounded-full px-2.5 py-1 text-xs font-medium normal-case tracking-normal ${getStatusBadgeClass()}`}
+                        className={getSessionAbsoluteBadgeClassName(
+                            "top-0 right-0",
+                            getStatusBadgeClass(),
+                        )}
                     >
                         raw json
                     </span>

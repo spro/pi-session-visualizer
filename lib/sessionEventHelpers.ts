@@ -1,20 +1,10 @@
-import type { LoadedSession, SessionEvent } from "@/lib/types"
+import type { SessionEvent } from "@/lib/types"
 
 const baseEventBodyClassName =
     "overflow-x-auto whitespace-pre-wrap break-words rounded-2xl p-4 text-sm leading-6"
 
-export function getPartLabelPieces(label: string) {
-    const [prefix, contentType] = label.split(" · ")
-
-    if (!contentType) {
-        return { prefix: "", contentType: prefix }
-    }
-
-    return { prefix, contentType }
-}
-
-export function getEventContentTypes(event: SessionEvent) {
-    return event.contentTypes?.split(" * ") ?? []
+function getEventContentTypes(event: SessionEvent) {
+    return Array.from(new Set(event.parts.map((part) => part.type)))
 }
 
 export function getEventContentTypeSummaries(event: SessionEvent) {
@@ -175,34 +165,6 @@ export function getEventLabelSuffix(event: SessionEvent) {
     }
 
     return getEventPreview(event)
-}
-
-export function shouldShowStopLabel(event: SessionEvent) {
-    return event.role === "assistant" && event.stopReason === "stop"
-}
-
-export function shouldDefaultOpenEvent(event: SessionEvent) {
-    return (
-        event.role === "user" ||
-        (event.role === "assistant" && event.stopReason === "stop")
-    )
-}
-
-export function shouldShowSessionWorkingState(session: LoadedSession) {
-    const lastMessage = [...session.events]
-        .reverse()
-        .find((event) => event.kind === "message")
-
-    if (!lastMessage) {
-        return false
-    }
-
-    return (
-        lastMessage.role === "user" ||
-        lastMessage.role === "toolResult" ||
-        (lastMessage.role === "assistant" &&
-            lastMessage.stopReason === "toolUse")
-    )
 }
 
 export function getEventBodyClassName(isError?: boolean) {

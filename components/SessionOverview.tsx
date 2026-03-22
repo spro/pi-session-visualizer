@@ -1,16 +1,12 @@
 import { SessionKeyValueRows } from "@/components/SessionKeyValueRows"
+import { getFallbackSessionTitle } from "@/lib/sessionFileMeta"
+import { getSessionSurfaceClassName } from "@/lib/sessionSurfaceStyles"
 import type { LoadedSession } from "@/lib/types"
 import { formatTimestamp } from "@/lib/utils"
 
 type SessionOverviewProps = {
     session: LoadedSession
     messageCount: number
-}
-
-function getFallbackSessionTitle(cwd: string) {
-    const pathSegments = cwd.replaceAll("\\", "/").split("/").filter(Boolean)
-
-    return pathSegments[pathSegments.length - 1] || "Session"
 }
 
 function getSessionTitle(session: LoadedSession) {
@@ -37,7 +33,12 @@ export function SessionOverview({
     ]
 
     return (
-        <section className="SessionOverview rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <section
+            className={getSessionSurfaceClassName(
+                "default",
+                "SessionOverview p-8",
+            )}
+        >
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                     <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50 sm:text-4xl">

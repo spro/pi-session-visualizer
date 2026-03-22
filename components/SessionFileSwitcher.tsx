@@ -3,127 +3,18 @@
 import { useMemo, useState, useTransition, type ChangeEvent } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { SessionKeyValueRows } from "@/components/SessionKeyValueRows"
-import { formatRelativeTimestamp, formatTimestamp } from "@/lib/utils"
+import {
+    formatSessionFileLabel,
+    getSessionTimestampValue,
+} from "@/lib/sessionFileMeta"
+import { getSessionSurfaceClassName } from "@/lib/sessionSurfaceStyles"
+import { formatTimestamp } from "@/lib/utils"
 
 type SessionFileSwitcherProps = {
     sessionFiles: string[]
     currentSessionFile: string | null
     sessionTitlesByFile: Record<string, string>
     sessionRootDirectory: string
-}
-
-function normalizePath(value: string) {
-    return value.replaceAll("\\", "/")
-}
-
-function getPathSegments(value: string) {
-    return normalizePath(value).split("/").filter(Boolean)
-}
-
-function getFileName(filePath: string) {
-    const pathSegments = getPathSegments(filePath)
-
-    return pathSegments[pathSegments.length - 1] ?? normalizePath(filePath)
-}
-
-function formatSessionDirectoryLabel(sessionDirectoryName: string) {
-    if (!sessionDirectoryName) {
-        return "external"
-    }
-
-    if (
-        !sessionDirectoryName.startsWith("--") ||
-        !sessionDirectoryName.endsWith("--")
-    ) {
-        return sessionDirectoryName
-    }
-
-    const directoryTokens = sessionDirectoryName
-        .slice(2, -2)
-        .split("-")
-        .filter(Boolean)
-    const trimmedDirectoryTokens =
-        directoryTokens[0] === "Users" && directoryTokens.length > 1
-            ? directoryTokens.slice(2)
-            : directoryTokens
-
-    if (trimmedDirectoryTokens.length === 0) {
-        return "~"
-    }
-
-    if (trimmedDirectoryTokens.length === 1) {
-        return trimmedDirectoryTokens[0]
-    }
-
-    const [groupLabel, ...nameParts] = trimmedDirectoryTokens
-
-    return `${groupLabel} / ${nameParts.join("-")}`
-}
-
-function getProjectLabel(filePath: string, sessionRootDirectory: string) {
-    const normalizedFilePath = normalizePath(filePath)
-    const sessionRootPrefix = `${normalizePath(sessionRootDirectory)}/`
-    const relativeFilePath = normalizedFilePath.startsWith(sessionRootPrefix)
-        ? normalizedFilePath.slice(sessionRootPrefix.length)
-        : normalizedFilePath
-    const pathSegments = getPathSegments(relativeFilePath)
-
-    return formatSessionDirectoryLabel(
-        pathSegments[pathSegments.length - 2] ?? "",
-    )
-}
-
-function getSessionTimestampValue(filePath: string) {
-    const fileName = getFileName(filePath)
-    const separatorIndex = fileName.indexOf("_")
-
-    if (separatorIndex === -1) {
-        return null
-    }
-
-    const rawTimestamp = fileName.slice(0, separatorIndex)
-    const match = rawTimestamp.match(
-        /^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})(?:-(\d+))?Z$/,
-    )
-
-    if (!match) {
-        return rawTimestamp
-    }
-
-    const [, datePart, hourPart, minutePart, secondPart, millisecondPart] =
-        match
-    const fractionalPart = millisecondPart ? `.${millisecondPart}` : ""
-
-    return `${datePart}T${hourPart}:${minutePart}:${secondPart}${fractionalPart}Z`
-}
-
-function formatSessionFileLabel(
-    filePath: string,
-    sessionRootDirectory: string,
-    sessionTitlesByFile: Record<string, string>,
-) {
-    const fileName = getFileName(filePath)
-    const separatorIndex = fileName.indexOf("_")
-    const projectLabel = getProjectLabel(filePath, sessionRootDirectory)
-    const sessionTitle = sessionTitlesByFile[filePath]?.trim()
-
-    if (separatorIndex === -1) {
-        return sessionTitle
-            ? `${sessionTitle} · ${projectLabel}`
-            : `${projectLabel} · ${fileName}`
-    }
-
-    const timestamp = getSessionTimestampValue(filePath)
-    const relativeTimestamp = timestamp
-        ? formatRelativeTimestamp(timestamp)
-        : fileName.slice(0, separatorIndex)
-    const id = fileName
-        .slice(separatorIndex + 1)
-        .replace(/\.(jsonl|ljson)$/i, "")
-
-    return sessionTitle
-        ? `${sessionTitle} · ${projectLabel} · ${relativeTimestamp}`
-        : `${projectLabel} · ${relativeTimestamp} · ${id.slice(0, 8)}`
 }
 
 export function SessionFileSwitcher({
@@ -206,7 +97,12 @@ export function SessionFileSwitcher({
     }
 
     return (
-        <section className="SessionFileSwitcher rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <section
+            className={getSessionSurfaceClassName(
+                "default",
+                "SessionFileSwitcher p-6",
+            )}
+        >
             {isPending ? <p>Switching session...</p> : null}
 
             {selectableSessionOptions.length > 0 ? (

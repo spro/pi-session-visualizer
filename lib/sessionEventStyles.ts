@@ -1,3 +1,6 @@
+import { isStopAssistantEvent } from "@/lib/sessionEventPredicates"
+import { getToolResultTone } from "@/lib/sessionToolPresentation"
+import { getSessionAbsoluteBadgeClassName } from "@/lib/sessionUiStyles"
 import type { SessionEvent } from "@/lib/types"
 
 const badgeToneClasses = {
@@ -28,24 +31,13 @@ const surfaceTintClasses = {
     zinc: "bg-zinc-50/80 dark:bg-zinc-900/50",
 } as const
 
-const toolResultToneByToolName = {
-    read: "sky",
-    edit: "emerald",
-    write: "fuchsia",
-    bash: "amber",
-} as const
-
 type BadgeTone = keyof typeof badgeToneClasses
 type SurfaceTintTone = keyof typeof surfaceTintClasses
-type ToolResultTone = "sky" | "emerald" | "fuchsia" | "amber" | "teal"
 
 export const eventPartSectionClassName = "px-6 py-5"
 export const eventPartBadgeOffsetClassName = "top-5 right-6"
 export const eventPartBadgeContentInsetClassName = "pr-20"
 export const sessionTimeClassName = "font-mono text-zinc-400"
-
-const partContentTypeBadgeBaseClassName =
-    "pointer-events-none absolute rounded-full px-2.5 py-1 text-xs font-medium normal-case tracking-normal"
 
 function getBadgeToneClass(tone: BadgeTone) {
     return badgeToneClasses[tone]
@@ -53,16 +45,6 @@ function getBadgeToneClass(tone: BadgeTone) {
 
 export function getSurfaceTintClass(tone: SurfaceTintTone) {
     return surfaceTintClasses[tone]
-}
-
-function getToolResultTone(toolName?: string): ToolResultTone {
-    if (toolName && toolName in toolResultToneByToolName) {
-        return toolResultToneByToolName[
-            toolName as keyof typeof toolResultToneByToolName
-        ]
-    }
-
-    return "teal"
 }
 
 export function getToolResultBadgeClass(toolName?: string) {
@@ -117,7 +99,7 @@ export function getEventCardBorderClass(event: SessionEvent) {
         return "border-sky-300 dark:border-sky-900"
     }
 
-    if (event.role === "assistant" && event.stopReason === "stop") {
+    if (isStopAssistantEvent(event)) {
         return "border-violet-300 dark:border-violet-900"
     }
 
@@ -152,7 +134,9 @@ export function getPartContentInsetClassName(contentType: string) {
 }
 
 export function getPartContentTypeBadgeClass(contentType: string) {
-    return `${partContentTypeBadgeBaseClassName} ${getContentTypeBadgeClass(contentType)}`
+    return getSessionAbsoluteBadgeClassName(
+        getContentTypeBadgeClass(contentType),
+    )
 }
 
 export function getStatusBadgeClass() {

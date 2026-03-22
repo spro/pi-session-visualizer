@@ -3,13 +3,18 @@ import {
     getEventContentTypeSummaries,
     getEventLabelSuffix,
     getEventRoleLabel,
-    shouldShowStopLabel,
 } from "@/lib/sessionEventHelpers"
+import { shouldShowStopLabel } from "@/lib/sessionEventPredicates"
 import {
     getContentTypeBadgeClass,
     getRoleBadgeClass,
     getStatusBadgeClass,
+    shouldShowPartContentTypeBadge,
 } from "@/lib/sessionEventStyles"
+import {
+    getSessionActionButtonClassName,
+    getSessionPillBadgeClassName,
+} from "@/lib/sessionUiStyles"
 import { SessionRelativeTime } from "@/components/SessionRelativeTime"
 import type { SessionEvent } from "@/lib/types"
 
@@ -26,7 +31,7 @@ export function SessionEventHeader({
 }: SessionEventHeaderProps) {
     const contentTypeSummaries = getEventContentTypeSummaries(event)
     const visibleContentTypeSummaries = contentTypeSummaries.filter(
-        ({ contentType }) => contentType !== "text",
+        ({ contentType }) => shouldShowPartContentTypeBadge(contentType),
     )
     const roleLabel = getEventRoleLabel(event)
     const suffix = getEventLabelSuffix(event)
@@ -40,13 +45,17 @@ export function SessionEventHeader({
             <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                     <span
-                        className={`rounded-full px-2.5 py-1 font-medium ${getRoleBadgeClass(event, roleLabel)}`}
+                        className={getSessionPillBadgeClassName(
+                            getRoleBadgeClass(event, roleLabel),
+                        )}
                     >
                         {roleLabel}
                     </span>
                     {showStopLabel ? (
                         <span
-                            className={`rounded-full px-2.5 py-1 font-medium ${getStatusBadgeClass()}`}
+                            className={getSessionPillBadgeClassName(
+                                getStatusBadgeClass(),
+                            )}
                         >
                             stop
                         </span>
@@ -63,7 +72,9 @@ export function SessionEventHeader({
                         ({ contentType, label }) => (
                             <span
                                 key={`${event.id}-${contentType}`}
-                                className={`rounded-full px-2.5 py-1 font-medium ${getContentTypeBadgeClass(contentType)}`}
+                                className={getSessionPillBadgeClassName(
+                                    getContentTypeBadgeClass(contentType),
+                                )}
                             >
                                 {label}
                             </span>
@@ -81,7 +92,9 @@ export function SessionEventHeader({
                     type="button"
                     onClick={onToggleRawJson}
                     aria-pressed={showRawJson}
-                    className={`rounded-full border px-3 py-1.5 font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${rawJsonButtonClassName}`}
+                    className={getSessionActionButtonClassName(
+                        rawJsonButtonClassName,
+                    )}
                 >
                     raw json
                 </button>

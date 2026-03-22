@@ -69,9 +69,20 @@ export type SessionEntry = {
     thinkingLevel?: string
 }
 
+export type SessionEventPartType =
+    | "text"
+    | "thinking"
+    | "toolCall"
+    | "image"
+    | "unknown"
+    | "string"
+    | "diff"
+    | "command"
+    | "output"
+    | "summary"
+
 export type SessionEventPart = {
-    label: string
-    type: string
+    type: SessionEventPartType
     body: string
     data?: unknown
 }
@@ -83,7 +94,6 @@ export type SessionEvent = {
     role?: SessionMessage["role"]
     toolName?: string
     label: string
-    contentTypes?: string
     body?: string
     parts: SessionEventPart[]
     meta?: string

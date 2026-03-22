@@ -63,7 +63,11 @@ export function formatRelativeTimestamp(value: string, now = Date.now()) {
     return relativeTimeFormat.format(diffYears, "year")
 }
 
-function formatCountLabel(count: number, singular: string, plural: string) {
+export function formatCountLabel(
+    count: number,
+    singular: string,
+    plural: string,
+) {
     return `${count} ${count === 1 ? singular : plural}`
 }
 

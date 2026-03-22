@@ -1,9 +1,13 @@
 import { SessionEventCard } from "@/components/SessionEventCard"
-import { shouldDefaultOpenEvent } from "@/lib/sessionEventHelpers"
+import { shouldDefaultOpenEvent } from "@/lib/sessionEventPredicates"
+import { sessionTimeClassName } from "@/lib/sessionEventStyles"
 import { getCollapsedGroupSummary } from "@/lib/sessionTimeline"
+import {
+    getSessionLargePillBadgeClassName,
+    getSessionPillBadgeClassName,
+} from "@/lib/sessionUiStyles"
 import type { SessionEvent } from "@/lib/types"
 import { formatElapsedDuration } from "@/lib/utils"
-import { sessionTimeClassName } from "@/lib/sessionEventStyles"
 
 type SessionCollapsedEventGroupProps = {
     events: SessionEvent[]
@@ -24,13 +28,19 @@ export function SessionCollapsedEventGroup({
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="flex flex-wrap items-center gap-2 text-xs">
-                            <span className="rounded-full bg-zinc-900 px-3 py-1.5 font-medium text-white dark:bg-zinc-400 dark:text-zinc-900">
+                            <span
+                                className={getSessionLargePillBadgeClassName(
+                                    "bg-zinc-900 text-white dark:bg-zinc-400 dark:text-zinc-900",
+                                )}
+                            >
                                 {summary.primaryLabel}
                             </span>
                             {summary.breakdown.map((item) => (
                                 <span
                                     key={item}
-                                    className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 font-medium text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
+                                    className={getSessionPillBadgeClassName(
+                                        "border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300",
+                                    )}
                                 >
                                     {item}
                                 </span>

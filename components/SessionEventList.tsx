@@ -1,6 +1,6 @@
 import { SessionCollapsedEventGroup } from "@/components/SessionCollapsedEventGroup"
 import { SessionEventCard } from "@/components/SessionEventCard"
-import { shouldDefaultOpenEvent } from "@/lib/sessionEventHelpers"
+import { shouldDefaultOpenEvent } from "@/lib/sessionEventPredicates"
 import { buildSessionTimelineItems } from "@/lib/sessionTimeline"
 import type { SessionEvent } from "@/lib/types"
 

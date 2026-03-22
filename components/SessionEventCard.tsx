@@ -4,8 +4,9 @@ import { useMemo, useState, type MouseEvent } from "react"
 import { SessionEventContent } from "@/components/SessionEventContent"
 import { SessionEventHeader } from "@/components/SessionEventHeader"
 import { getEventCardBorderClass } from "@/lib/sessionEventStyles"
+import { getSessionSurfaceClassName } from "@/lib/sessionSurfaceStyles"
 import type { SessionEvent } from "@/lib/types"
-import { stringifyJson } from "@/lib/utils"
+import { joinClassNames, stringifyJson } from "@/lib/utils"
 
 type SessionEventCardProps = {
     event: SessionEvent
@@ -35,9 +36,14 @@ export function SessionEventCard({
             data-session-event-role={event.role ?? "unknown"}
             data-session-stop-reason={event.stopReason ?? undefined}
             data-session-user-message={isUserMessage ? "true" : undefined}
-            className={`SessionEventCard overflow-hidden rounded-3xl border bg-white shadow-sm dark:bg-zinc-950 ${borderClassName} ${
-                isUserMessage ? "ml-auto w-full max-w-[88%]" : "w-full"
-            }`}
+            className={getSessionSurfaceClassName(
+                "default",
+                joinClassNames(
+                    "SessionEventCard overflow-hidden",
+                    borderClassName,
+                    isUserMessage ? "ml-auto w-full max-w-[88%]" : "w-full",
+                ),
+            )}
         >
             <summary className="cursor-pointer list-none">
                 <SessionEventHeader

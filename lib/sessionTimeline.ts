@@ -1,4 +1,6 @@
+import { isConversationBoundaryEvent } from "@/lib/sessionEventPredicates"
 import type { SessionEvent } from "@/lib/types"
+import { formatCountLabel } from "@/lib/utils"
 
 type CountLabel = {
     singular: string
@@ -73,17 +75,6 @@ const breakdownOrder = [
     "unknown",
 ]
 
-function formatCountLabel(count: number, label: CountLabel) {
-    return `${count} ${count === 1 ? label.singular : label.plural}`
-}
-
-function isConversationBoundaryEvent(event: SessionEvent) {
-    return (
-        event.role === "user" ||
-        (event.role === "assistant" && event.stopReason === "stop")
-    )
-}
-
 function getBreakdownKey(event: SessionEvent) {
     if (event.kind === "model_change") {
         return "model_change"
@@ -152,29 +143,28 @@ export function getCollapsedGroupSummary(
 
     const primaryLabel =
         sessionChangeCount === 0
-            ? formatCountLabel(messageCount, {
-                  singular: "message collapsed",
-                  plural: "messages collapsed",
-              })
+            ? formatCountLabel(
+                  messageCount,
+                  "message collapsed",
+                  "messages collapsed",
+              )
             : messageCount === 0
-              ? formatCountLabel(sessionChangeCount, {
-                    singular: "session change collapsed",
-                    plural: "session changes collapsed",
-                })
-              : `${formatCountLabel(messageCount, {
-                    singular: "message",
-                    plural: "messages",
-                })} + ${formatCountLabel(sessionChangeCount, {
-                    singular: "change",
-                    plural: "changes",
-                })} collapsed`
+              ? formatCountLabel(
+                    sessionChangeCount,
+                    "session change collapsed",
+                    "session changes collapsed",
+                )
+              : `${formatCountLabel(messageCount, "message", "messages")} + ${formatCountLabel(sessionChangeCount, "change", "changes")} collapsed`
 
     const breakdown = breakdownOrder
         .filter((key) => countsByKey.has(key))
         .map((key) =>
             formatCountLabel(
                 countsByKey.get(key) ?? 0,
-                breakdownLabelByKey[key] ?? breakdownLabelByKey.unknown,
+                breakdownLabelByKey[key]?.singular ??
+                    breakdownLabelByKey.unknown.singular,
+                breakdownLabelByKey[key]?.plural ??
+                    breakdownLabelByKey.unknown.plural,
             ),
         )
 

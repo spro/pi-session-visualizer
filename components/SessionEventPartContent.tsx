@@ -2,10 +2,7 @@ import type { ReactNode } from "react"
 import { Streamdown } from "streamdown"
 import { SessionEditDiff } from "@/components/SessionEditDiff"
 import { SessionToolCallDetails } from "@/components/SessionToolCallDetails"
-import {
-    getEventBodyClassName,
-    getPartLabelPieces,
-} from "@/lib/sessionEventHelpers"
+import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
 import {
     eventPartBadgeOffsetClassName,
     eventPartSectionClassName,
@@ -15,6 +12,10 @@ import {
     getToolResultPartTintClass,
     shouldShowPartContentTypeBadge,
 } from "@/lib/sessionEventStyles"
+import {
+    isMarkdownToolResult,
+    shouldTrimToolResultBody,
+} from "@/lib/sessionToolPresentation"
 import type { SessionEvent } from "@/lib/types"
 import { joinClassNames } from "@/lib/utils"
 
@@ -86,7 +87,7 @@ export function SessionEventPartContent({
     part,
     event,
 }: SessionEventPartContentProps) {
-    const { contentType } = getPartLabelPieces(part.label)
+    const contentType = part.type
     const isToolResult = event.role === "toolResult"
     const toolResultPartClassName = isToolResult
         ? getToolResultPartTintClass(event.toolName, event.isError)
@@ -132,10 +133,10 @@ export function SessionEventPartContent({
                     contentType={contentType}
                     className={toolResultPartClassName}
                 >
-                    {event.toolName === "edit" || event.toolName === "write"
+                    {isMarkdownToolResult(event.toolName)
                         ? renderMarkdown(part.body, plainTextClassName)
                         : renderPreformatted(
-                              event.toolName === "bash"
+                              shouldTrimToolResultBody(event.toolName)
                                   ? part.body.trim()
                                   : part.body,
                           )}

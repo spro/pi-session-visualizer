@@ -13,7 +13,7 @@ import {
     loadSessionFile,
     resolveSessionFilePath,
 } from "@/lib/session"
-import { shouldShowSessionWorkingState } from "@/lib/sessionEventHelpers"
+import { shouldShowSessionWorkingState } from "@/lib/sessionEventPredicates"
 
 type HomeProps = {
     searchParams?:

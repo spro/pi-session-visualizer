@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { isEditToolName } from "@/lib/sessionToolPresentation"
 import { stringifyJson } from "@/lib/utils"
 
 type ToolCallData = {
@@ -160,7 +161,7 @@ export function SessionToolCallDetails({
 }: SessionToolCallDetailsProps) {
     const data = rawData as ToolCallData | undefined
 
-    if (data?.name === "edit") {
+    if (isEditToolName(data?.name)) {
         return (
             <div className="SessionToolCallDetails">
                 <div className="grid gap-3 sm:grid-cols-2">

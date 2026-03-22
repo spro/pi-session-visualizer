@@ -1,6 +1,6 @@
 import { readFile, readdir } from "node:fs/promises"
 import { homedir } from "node:os"
-import { basename, join } from "node:path"
+import { join } from "node:path"
 import type {
     LoadedSession,
     SessionEntry,
@@ -8,6 +8,11 @@ import type {
     SessionHeader,
     ToolCallContent,
 } from "@/lib/types"
+import {
+    getSessionDirectoryName,
+    getSessionIdFromFilePath,
+    sortSessionFiles,
+} from "@/lib/sessionFileMeta"
 import { resolveSessionPath, toSessionEvent } from "@/lib/sessionParser"
 
 const SESSION_ROOT_DIRECTORY = join(homedir(), ".pi/agent/sessions")
@@ -16,42 +21,6 @@ const SESSION_TITLE_DIRECTORIES = [
     join(homedir(), ".pi/agents/session-titles"),
 ]
 const SESSION_FILE_PATTERN = /\.(jsonl|ljson)$/i
-
-function getSessionDirectoryName(cwdPath: string) {
-    const normalizedCwdPath = cwdPath.replaceAll("\\", "/")
-
-    return `-${normalizedCwdPath.replaceAll("/", "-")}--`
-}
-
-function compareSessionFiles(left: string, right: string) {
-    const fileNameComparison = basename(right).localeCompare(basename(left))
-
-    if (fileNameComparison !== 0) {
-        return fileNameComparison
-    }
-
-    return right.localeCompare(left)
-}
-
-function sortSessionFiles(filePaths: string[]) {
-    return [...filePaths].sort(compareSessionFiles)
-}
-
-function getSessionIdFromFilePath(filePath: string) {
-    const fileName = basename(filePath)
-    const separatorIndex = fileName.indexOf("_")
-
-    if (separatorIndex === -1) {
-        return null
-    }
-
-    const sessionId = fileName
-        .slice(separatorIndex + 1)
-        .replace(/\.(jsonl|ljson)$/i, "")
-        .trim()
-
-    return sessionId || null
-}
 
 function getLatestSessionName(entries: SessionEntry[]) {
     const sessionInfoEntry = [...entries].reverse().find((entry) => {

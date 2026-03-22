@@ -1,6 +1,13 @@
 "use client"
 
 import { useRef, useState, type FormEvent } from "react"
+import {
+    sessionPanelButtonClassName,
+    sessionPanelCompactIconButtonClassName,
+    sessionPanelFieldShellClassName,
+    sessionPanelIconButtonClassName,
+} from "@/lib/sessionUiStyles"
+import { joinClassNames } from "@/lib/utils"
 
 type SelectorJumpAction = {
     description: string
@@ -165,11 +172,9 @@ export function SessionNavigationPanel() {
         jumpToMessage(jumpValue)
     }
 
-    const buttonClassName =
-        "flex min-h-11 items-center justify-center rounded-lg border border-zinc-900 bg-white px-3 py-2 text-center text-xs font-medium text-zinc-900 transition hover:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-    const iconButtonClassName = `${buttonClassName} gap-3`
-    const panelHandleClassName =
-        "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-900 bg-zinc-100 text-lg leading-none text-zinc-900 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+    const buttonClassName = sessionPanelButtonClassName
+    const iconButtonClassName = joinClassNames(buttonClassName, "gap-3")
+    const panelHandleClassName = sessionPanelIconButtonClassName
 
     return (
         <aside className="SessionNavigationPanel fixed right-4 top-4 z-50">
@@ -191,7 +196,7 @@ export function SessionNavigationPanel() {
                         className="min-w-0 flex-1"
                     >
                         <form className="space-y-3" onSubmit={handleJumpSubmit}>
-                            <div className="flex items-stretch gap-2 rounded-lg border border-zinc-900 bg-white p-2 dark:border-zinc-700 dark:bg-zinc-900">
+                            <div className={sessionPanelFieldShellClassName}>
                                 <label
                                     className="sr-only"
                                     htmlFor="session-jump-input"
@@ -213,7 +218,9 @@ export function SessionNavigationPanel() {
                                 <button
                                     type="submit"
                                     aria-label="Jump to message"
-                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-zinc-900 bg-zinc-100 text-xl leading-none text-zinc-900 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                                    className={
+                                        sessionPanelCompactIconButtonClassName
+                                    }
                                 >
                                     &gt;
                                 </button>
