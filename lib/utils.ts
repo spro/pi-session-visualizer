@@ -71,6 +71,22 @@ export function formatCountLabel(
     return `${count} ${count === 1 ? singular : plural}`
 }
 
+export function formatNumber(value: number) {
+    return new Intl.NumberFormat("en").format(value)
+}
+
+export function formatUsd(value: number) {
+    const maximumFractionDigits =
+        value >= 1 ? 2 : value >= 0.1 ? 3 : value >= 0.01 ? 4 : 6
+
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits,
+    }).format(value)
+}
+
 export function formatElapsedDuration(startValue: string, endValue: string) {
     const startTime = Date.parse(startValue)
     const endTime = Date.parse(endValue)

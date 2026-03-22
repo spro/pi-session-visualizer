@@ -15,6 +15,23 @@ export type SessionHeader = {
     version: number
 }
 
+export type SessionUsageCost = {
+    input: number
+    output: number
+    cacheRead: number
+    cacheWrite: number
+    total: number
+}
+
+export type SessionUsage = {
+    input: number
+    output: number
+    cacheRead: number
+    cacheWrite: number
+    totalTokens: number
+    cost: SessionUsageCost
+}
+
 export type TextContent = {
     type: "text"
     text: string
@@ -55,6 +72,11 @@ export type SessionMessage = {
     summary?: string
     customType?: string
     details?: unknown
+    api?: string
+    provider?: string
+    model?: string
+    usage?: SessionUsage
+    responseId?: string
 }
 
 export type SessionEntry = {
@@ -64,8 +86,12 @@ export type SessionEntry = {
     timestamp: string
     name?: string
     message?: SessionMessage
+    api?: string
     provider?: string
+    model?: string
     modelId?: string
+    usage?: SessionUsage
+    responseId?: string
     thinkingLevel?: string
 }
 
@@ -99,6 +125,11 @@ export type SessionEvent = {
     meta?: string
     stopReason?: string
     isError?: boolean
+    rawEntry: SessionEntry
+}
+
+export type SessionUsageSummary = SessionUsage & {
+    requestCount: number
 }
 
 export type LoadedSession = {
@@ -106,4 +137,5 @@ export type LoadedSession = {
     header: SessionHeader
     sessionName: string | null
     events: SessionEvent[]
+    usage: SessionUsageSummary | null
 }

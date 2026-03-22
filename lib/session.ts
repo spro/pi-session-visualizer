@@ -14,6 +14,7 @@ import {
     sortSessionFiles,
 } from "@/lib/sessionFileMeta"
 import { resolveSessionPath, toSessionEvent } from "@/lib/sessionParser"
+import { summarizeSessionUsage } from "@/lib/sessionUsage"
 
 const SESSION_ROOT_DIRECTORY = join(homedir(), ".pi/agent/sessions")
 const SESSION_TITLE_DIRECTORIES = [
@@ -205,6 +206,7 @@ export async function loadSessionFile(
         const sessionName =
             getLatestSessionName(entries) ??
             (await getStoredSessionName(header.id))
+        const usage = summarizeSessionUsage(entries)
 
         return {
             filePath: resolvedFilePath,
@@ -213,6 +215,7 @@ export async function loadSessionFile(
             events: events.filter(
                 (event): event is SessionEvent => event !== null,
             ),
+            usage,
         }
     } catch {
         return null

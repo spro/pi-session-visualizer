@@ -13,6 +13,10 @@ By default it opens the newest session for the current project, falling back to 
 - Tool result entries (read, write, edit, bash)
     - Edit diff view
     - Bash execution entries
+- Session usage and cost summary
+    - Assistant request count
+    - Input/output/cache token breakdown
+    - Cost breakdown
 - Branch summary and compaction summary entries
 - Custom extension entries
 
@@ -54,6 +58,7 @@ Current organization:
 
 - `session.ts` — top-level session loading API
 - `sessionParser.ts` — parsing and normalization from raw session entries to rendered events
+- `sessionUsage.ts` — usage/cost normalization and per-session aggregation
 - `sessionEventHelpers.ts` — event display/state helper logic
 - `sessionEventStyles.ts` — badge/style class helpers
 - `utils.ts` — general-purpose shared utilities
