@@ -1,5 +1,8 @@
-import { SessionEventJson } from "@/components/SessionEventJson"
-import { SessionEventPart } from "@/components/SessionEventPart"
+import {
+    eventPartBadgeContentInsetClassName,
+    getStatusBadgeClass,
+} from "@/lib/sessionEventStyles"
+import { SessionEventPartContent } from "@/components/SessionEventPartContent"
 import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
 import type { SessionEvent } from "@/lib/types"
 
@@ -9,7 +12,8 @@ type SessionEventContentProps = {
     showRawJson: boolean
 }
 
-const eventSectionClassName = "border-t border-zinc-200 dark:border-zinc-800"
+const eventSectionClassName =
+    "SessionEventContent border-t border-zinc-200 dark:border-zinc-800"
 const eventSectionInsetClassName = `${eventSectionClassName} px-6 py-5`
 
 export function SessionEventContent({
@@ -20,7 +24,18 @@ export function SessionEventContent({
     if (showRawJson) {
         return (
             <div className={eventSectionClassName}>
-                <SessionEventJson rawJson={rawJson} />
+                <div className="relative px-6 py-5">
+                    <span
+                        className={`pointer-events-none absolute top-0 right-0 rounded-full px-2.5 py-1 text-xs font-medium normal-case tracking-normal ${getStatusBadgeClass()}`}
+                    >
+                        raw json
+                    </span>
+                    <div className={eventPartBadgeContentInsetClassName}>
+                        <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs leading-6 text-zinc-900 dark:text-zinc-100">
+                            {rawJson}
+                        </pre>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -28,7 +43,7 @@ export function SessionEventContent({
     if (event.parts.length > 0) {
         return event.parts.map((part, index) => (
             <div key={`${event.id}-${index}`} className={eventSectionClassName}>
-                <SessionEventPart part={part} event={event} />
+                <SessionEventPartContent part={part} event={event} />
             </div>
         ))
     }

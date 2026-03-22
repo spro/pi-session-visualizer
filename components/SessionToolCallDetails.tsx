@@ -1,10 +1,7 @@
 import type { ReactNode } from "react"
-
-import { SessionEditDiffBlock } from "@/components/SessionEditDiffBlock"
 import { stringifyJson } from "@/lib/utils"
 
 type ToolCallData = {
-    id?: string
     name?: string
     arguments?: {
         path?: string
@@ -19,27 +16,66 @@ type SessionToolCallDetailsProps = {
 
 const detailLabelClassName =
     "text-xs font-medium text-emerald-700 dark:text-emerald-300"
-
+const detailValueClassName =
+    "mt-2 font-mono text-sm text-zinc-900 dark:text-zinc-100"
+const detailPathClassName =
+    "mt-2 break-all font-mono text-sm text-zinc-900 dark:text-zinc-100"
 const argumentLabelClassName =
     "text-sm font-medium text-zinc-500 dark:text-zinc-400"
-
 const argumentValueClassName =
     "break-words font-mono text-sm text-zinc-900 dark:text-zinc-100"
-
 const argumentBlockClassName =
     "overflow-x-auto whitespace-pre-wrap break-words rounded-xl bg-zinc-100/80 px-3 py-2 font-mono text-sm leading-6 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100"
-
 const nestedArgumentClassName =
     "rounded-xl border border-zinc-200 bg-zinc-50/70 p-3 dark:border-zinc-800 dark:bg-zinc-950/40"
-
 const mutedValueClassName = "text-sm italic text-zinc-500 dark:text-zinc-400"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
-function formatArgumentLabel(value: string) {
-    return value
+function DetailField({
+    label,
+    value,
+    valueClassName = detailValueClassName,
+}: {
+    label: string
+    value: ReactNode
+    valueClassName?: string
+}) {
+    return (
+        <div>
+            <p className={detailLabelClassName}>{label}</p>
+            <div className={valueClassName}>{value}</div>
+        </div>
+    )
+}
+
+function EditDiffBlock({ prefix, text }: { prefix: "-" | "+"; text: string }) {
+    const isRemoval = prefix === "-"
+
+    return (
+        <div>
+            <div
+                className={`mb-2 text-xs font-medium uppercase tracking-[0.2em] ${
+                    isRemoval
+                        ? "text-rose-700 dark:text-rose-300"
+                        : "text-emerald-700 dark:text-emerald-300"
+                }`}
+            >
+                {isRemoval ? "Removed" : "Added"}
+            </div>
+            <pre
+                className={`overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm leading-6 ${
+                    isRemoval
+                        ? "text-rose-950 dark:text-rose-100"
+                        : "text-emerald-950 dark:text-emerald-100"
+                }`}
+            >
+                {text || "(empty)"}
+            </pre>
+        </div>
+    )
 }
 
 function renderArgumentValue(value: unknown): ReactNode {
@@ -72,7 +108,11 @@ function renderArgumentValue(value: unknown): ReactNode {
             <ul className="grid gap-2">
                 {value.map((item, index) => (
                     <li key={index} className={nestedArgumentClassName}>
-                        {renderCollectionValue(item)}
+                        {isRecord(item) ? (
+                            <SessionToolArgumentList toolArguments={item} />
+                        ) : (
+                            renderArgumentValue(item)
+                        )}
                     </li>
                 ))}
             </ul>
@@ -82,7 +122,7 @@ function renderArgumentValue(value: unknown): ReactNode {
     if (isRecord(value)) {
         return (
             <div className={nestedArgumentClassName}>
-                <SessionToolArgumentList toolArguments={value} nested />
+                <SessionToolArgumentList toolArguments={value} />
             </div>
         )
     }
@@ -90,20 +130,10 @@ function renderArgumentValue(value: unknown): ReactNode {
     return <pre className={argumentBlockClassName}>{stringifyJson(value)}</pre>
 }
 
-function renderCollectionValue(value: unknown): ReactNode {
-    if (isRecord(value)) {
-        return <SessionToolArgumentList toolArguments={value} nested />
-    }
-
-    return renderArgumentValue(value)
-}
-
 function SessionToolArgumentList({
     toolArguments,
-    nested = false,
 }: {
     toolArguments: Record<string, unknown>
-    nested?: boolean
 }) {
     const entries = Object.entries(toolArguments).filter(
         ([, value]) => value !== undefined,
@@ -114,16 +144,11 @@ function SessionToolArgumentList({
     }
 
     return (
-        <dl className={nested ? "grid gap-3" : "grid gap-4"}>
+        <dl className="grid gap-2">
             {entries.map(([key, value]) => (
-                <div
-                    key={key}
-                    className="grid grid-cols-[max-content_minmax(0,1fr)] items-start gap-x-4 gap-y-2"
-                >
-                    <dt className={argumentLabelClassName}>
-                        {formatArgumentLabel(key)}
-                    </dt>
-                    <dd className="min-w-0">{renderArgumentValue(value)}</dd>
+                <div key={key} className="flex gap-4">
+                    <dt className={argumentLabelClassName}>{key}</dt>
+                    <dd>{renderArgumentValue(value)}</dd>
                 </div>
             ))}
         </dl>
@@ -137,27 +162,21 @@ export function SessionToolCallDetails({
 
     if (data?.name === "edit") {
         return (
-            <div>
+            <div className="SessionToolCallDetails">
                 <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                        <p className={detailLabelClassName}>Tool name</p>
-                        <p className="mt-2 font-mono text-sm text-zinc-900 dark:text-zinc-100">
-                            {data.name}
-                        </p>
-                    </div>
-                    <div>
-                        <p className={detailLabelClassName}>Path</p>
-                        <p className="mt-2 break-all font-mono text-sm text-zinc-900 dark:text-zinc-100">
-                            {data.arguments?.path ?? "unknown"}
-                        </p>
-                    </div>
+                    <DetailField label="Tool name" value={data.name} />
+                    <DetailField
+                        label="Path"
+                        value={data.arguments?.path ?? "unknown"}
+                        valueClassName={detailPathClassName}
+                    />
                 </div>
                 <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                    <SessionEditDiffBlock
+                    <EditDiffBlock
                         prefix="-"
                         text={data.arguments?.oldText ?? ""}
                     />
-                    <SessionEditDiffBlock
+                    <EditDiffBlock
                         prefix="+"
                         text={data.arguments?.newText ?? ""}
                     />
@@ -167,13 +186,8 @@ export function SessionToolCallDetails({
     }
 
     return (
-        <div>
-            <div>
-                <p className={detailLabelClassName}>Tool name</p>
-                <p className="mt-2 font-mono text-sm text-zinc-900 dark:text-zinc-100">
-                    {data?.name ?? "unknown"}
-                </p>
-            </div>
+        <div className="SessionToolCallDetails">
+            <DetailField label="Tool name" value={data?.name ?? "unknown"} />
             <div className="mt-4">
                 <p className={`mb-2 ${detailLabelClassName}`}>Arguments</p>
                 <SessionToolArgumentList

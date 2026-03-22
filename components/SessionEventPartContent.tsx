@@ -2,7 +2,10 @@ import type { ReactNode } from "react"
 import { Streamdown } from "streamdown"
 import { SessionEditDiff } from "@/components/SessionEditDiff"
 import { SessionToolCallDetails } from "@/components/SessionToolCallDetails"
-import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
+import {
+    getEventBodyClassName,
+    getPartLabelPieces,
+} from "@/lib/sessionEventHelpers"
 import {
     eventPartBadgeOffsetClassName,
     eventPartSectionClassName,
@@ -13,60 +16,53 @@ import {
     shouldShowPartContentTypeBadge,
 } from "@/lib/sessionEventStyles"
 import type { SessionEvent } from "@/lib/types"
+import { joinClassNames } from "@/lib/utils"
 
 type SessionEventPartContentProps = {
     part: SessionEvent["parts"][number]
     event: SessionEvent
-    contentType: string
 }
 
-type SessionEventPartBadgeProps = {
-    contentType: string
-    className: string
-}
+const markdownClassName =
+    "streamdown-message text-sm leading-6 text-zinc-900 dark:text-zinc-100"
+const plainTextClassName = "text-sm leading-6 text-zinc-900 dark:text-zinc-100"
+const preformattedClassName =
+    "overflow-x-auto whitespace-pre-wrap break-words text-sm leading-6 text-zinc-900 dark:text-zinc-100"
 
-type SessionEventPartFrameProps = {
-    contentType: string
-    bodyClassName: string
-    children: ReactNode
-}
-
-type SessionEventPartInlineProps = {
-    contentType: string
-    className: string
-    children: ReactNode
-}
-
-function SessionEventPartBadge({
+function SessionEventPartContainer({
     contentType,
     className,
-}: SessionEventPartBadgeProps) {
-    if (!shouldShowPartContentTypeBadge(contentType)) {
-        return null
-    }
-
-    return (
-        <span
-            className={`${getPartContentTypeBadgeClass(contentType)} ${className}`}
-        >
-            {contentType}
-        </span>
-    )
-}
-
-function SessionEventPartFrame({
-    contentType,
-    bodyClassName,
+    innerClassName,
     children,
-}: SessionEventPartFrameProps) {
+}: {
+    contentType: string
+    className?: string
+    innerClassName?: string
+    children: ReactNode
+}) {
     return (
-        <div className={`relative ${eventPartSectionClassName}`}>
-            <SessionEventPartBadge
-                contentType={contentType}
-                className={eventPartBadgeOffsetClassName}
-            />
+        <div
+            className={joinClassNames(
+                "SessionEventPartContent relative",
+                eventPartSectionClassName,
+                className,
+            )}
+        >
+            {shouldShowPartContentTypeBadge(contentType) ? (
+                <span
+                    className={joinClassNames(
+                        getPartContentTypeBadgeClass(contentType),
+                        eventPartBadgeOffsetClassName,
+                    )}
+                >
+                    {contentType}
+                </span>
+            ) : null}
             <div
-                className={`${bodyClassName} ${getPartContentInsetClassName(contentType)}`}
+                className={joinClassNames(
+                    innerClassName,
+                    getPartContentInsetClassName(contentType),
+                )}
             >
                 {children}
             </div>
@@ -74,109 +70,27 @@ function SessionEventPartFrame({
     )
 }
 
-function SessionEventPartInline({
-    contentType,
-    className,
-    children,
-}: SessionEventPartInlineProps) {
+function renderMarkdown(body: string, className = markdownClassName) {
     return (
-        <div className={`relative ${eventPartSectionClassName} ${className}`}>
-            <SessionEventPartBadge
-                contentType={contentType}
-                className={eventPartBadgeOffsetClassName}
-            />
-            <div className={getPartContentInsetClassName(contentType)}>
-                {children}
-            </div>
+        <div className={className}>
+            <Streamdown>{body || "(empty)"}</Streamdown>
         </div>
     )
+}
+
+function renderPreformatted(body: string) {
+    return <pre className={preformattedClassName}>{body || "(empty)"}</pre>
 }
 
 export function SessionEventPartContent({
     part,
     event,
-    contentType,
 }: SessionEventPartContentProps) {
-    const bodyClassName = getEventBodyClassName(event.isError)
+    const { contentType } = getPartLabelPieces(part.label)
     const isToolResult = event.role === "toolResult"
-    const inlineBody =
-        isToolResult && event.toolName === "bash" ? part.body.trim() : part.body
     const toolResultPartClassName = isToolResult
         ? getToolResultPartTintClass(event.toolName, event.isError)
-        : ""
-
-    if (part.type === "text" || part.type === "string") {
-        if (isToolResult) {
-            if (event.toolName === "edit" || event.toolName === "write") {
-                return (
-                    <SessionEventPartInline
-                        contentType={contentType}
-                        className={toolResultPartClassName}
-                    >
-                        <div className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-                            <Streamdown>{part.body || "(empty)"}</Streamdown>
-                        </div>
-                    </SessionEventPartInline>
-                )
-            }
-
-            return (
-                <SessionEventPartInline
-                    contentType={contentType}
-                    className={toolResultPartClassName}
-                >
-                    <pre className="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-                        {inlineBody || "(empty)"}
-                    </pre>
-                </SessionEventPartInline>
-            )
-        }
-
-        if (event.role === "user") {
-            return (
-                <SessionEventPartInline
-                    contentType={contentType}
-                    className={getSurfaceTintClass("blue")}
-                >
-                    <div className="streamdown-message text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-                        <Streamdown>{part.body || "(empty)"}</Streamdown>
-                    </div>
-                </SessionEventPartInline>
-            )
-        }
-
-        if (event.role === "assistant") {
-            return (
-                <SessionEventPartInline contentType={contentType} className="">
-                    <div className="streamdown-message text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-                        <Streamdown>{part.body || "(empty)"}</Streamdown>
-                    </div>
-                </SessionEventPartInline>
-            )
-        }
-
-        return (
-            <SessionEventPartFrame
-                contentType={contentType}
-                bodyClassName={bodyClassName}
-            >
-                {part.body || "(empty)"}
-            </SessionEventPartFrame>
-        )
-    }
-
-    if (part.type === "thinking") {
-        return (
-            <SessionEventPartInline
-                contentType={contentType}
-                className={getSurfaceTintClass("purple")}
-            >
-                <div className="streamdown-message text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-                    <Streamdown>{part.body || "(empty)"}</Streamdown>
-                </div>
-            </SessionEventPartInline>
-        )
-    }
+        : undefined
 
     if (part.type === "diff") {
         return (
@@ -184,43 +98,80 @@ export function SessionEventPartContent({
                 body={part.body}
                 contentType={contentType}
                 flat={isToolResult}
-                flatClassName={
-                    isToolResult ? toolResultPartClassName : undefined
-                }
+                flatClassName={toolResultPartClassName}
             />
         )
     }
 
     if (part.type === "toolCall") {
         return (
-            <SessionEventPartInline
+            <SessionEventPartContainer
                 contentType={contentType}
                 className={getSurfaceTintClass("emerald")}
             >
                 <SessionToolCallDetails data={part.data} />
-            </SessionEventPartInline>
+            </SessionEventPartContainer>
         )
     }
 
-    if (isToolResult) {
+    if (part.type === "thinking") {
         return (
-            <SessionEventPartInline
+            <SessionEventPartContainer
                 contentType={contentType}
-                className={toolResultPartClassName}
+                className={getSurfaceTintClass("purple")}
             >
-                <pre className="overflow-x-auto whitespace-pre-wrap break-words text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-                    {part.body || "(empty)"}
-                </pre>
-            </SessionEventPartInline>
+                {renderMarkdown(part.body)}
+            </SessionEventPartContainer>
         )
     }
 
-    return (
-        <SessionEventPartFrame
+    if (part.type === "text" || part.type === "string") {
+        if (isToolResult) {
+            return (
+                <SessionEventPartContainer
+                    contentType={contentType}
+                    className={toolResultPartClassName}
+                >
+                    {event.toolName === "edit" || event.toolName === "write"
+                        ? renderMarkdown(part.body, plainTextClassName)
+                        : renderPreformatted(
+                              event.toolName === "bash"
+                                  ? part.body.trim()
+                                  : part.body,
+                          )}
+                </SessionEventPartContainer>
+            )
+        }
+
+        if (event.role === "user" || event.role === "assistant") {
+            return (
+                <SessionEventPartContainer
+                    contentType={contentType}
+                    className={
+                        event.role === "user"
+                            ? getSurfaceTintClass("blue")
+                            : undefined
+                    }
+                >
+                    {renderMarkdown(part.body)}
+                </SessionEventPartContainer>
+            )
+        }
+    }
+
+    return isToolResult ? (
+        <SessionEventPartContainer
             contentType={contentType}
-            bodyClassName={bodyClassName}
+            className={toolResultPartClassName}
+        >
+            {renderPreformatted(part.body)}
+        </SessionEventPartContainer>
+    ) : (
+        <SessionEventPartContainer
+            contentType={contentType}
+            innerClassName={getEventBodyClassName(event.isError)}
         >
             {part.body || "(empty)"}
-        </SessionEventPartFrame>
+        </SessionEventPartContainer>
     )
 }
