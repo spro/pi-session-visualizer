@@ -16,7 +16,7 @@ import {
     isMarkdownToolResult,
     shouldTrimToolResultBody,
 } from "@/lib/sessionToolPresentation"
-import type { SessionEvent } from "@/lib/types"
+import type { ImageContent, SessionEvent } from "@/lib/types"
 import { joinClassNames } from "@/lib/utils"
 
 type SessionEventPartContentProps = {
@@ -83,6 +83,44 @@ function renderPreformatted(body: string) {
     return <pre className={preformattedClassName}>{body || "(empty)"}</pre>
 }
 
+function isImageContent(value: unknown): value is ImageContent {
+    return (
+        typeof value === "object" &&
+        value !== null &&
+        "type" in value &&
+        value.type === "image" &&
+        "mimeType" in value &&
+        typeof value.mimeType === "string"
+    )
+}
+
+function renderImagePart(partData: unknown) {
+    if (!isImageContent(partData)) {
+        return renderPreformatted("(invalid image payload)")
+    }
+
+    if (!partData.data) {
+        return renderPreformatted(
+            `Image payload missing for ${partData.mimeType}`,
+        )
+    }
+
+    const source = `data:${partData.mimeType};base64,${partData.data}`
+
+    return (
+        <div className="grid gap-3">
+            <img
+                src={source}
+                alt="Read image output"
+                className="max-h-[32rem] w-auto max-w-full rounded-xl border border-zinc-200 bg-white object-contain shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+            />
+            <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                {partData.mimeType}
+            </p>
+        </div>
+    )
+}
+
 export function SessionEventPartContent({
     part,
     event,
@@ -122,6 +160,17 @@ export function SessionEventPartContent({
                 className={getSurfaceTintClass("purple")}
             >
                 {renderMarkdown(part.body)}
+            </SessionEventPartContainer>
+        )
+    }
+
+    if (part.type === "image") {
+        return (
+            <SessionEventPartContainer
+                contentType={contentType}
+                className={toolResultPartClassName}
+            >
+                {renderImagePart(part.data)}
             </SessionEventPartContainer>
         )
     }
