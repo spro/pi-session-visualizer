@@ -78,6 +78,42 @@ a {
     margin-top: 0.05rem;
 }
 
+[data-streamdown="code-block"] {
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 0 !important;
+    gap: 0;
+}
+
+[data-streamdown="code-block-header"] {
+    padding: 10px;
+    line-height: 1;
+    height: auto;
+    min-height: 3em;
+}
+
+[data-streamdown="code-block-header"] + div {
+    margin: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+[data-streamdown="code-block-actions"] {
+    color: #999;
+    border: 0;
+}
+
+[data-streamdown="code-block-body"] {
+    background: #000;
+    border-color: var(--border);
+    border-width: 1px 0 0 0;
+    border-bottom: none;
+    border-bottom: none;
+    border-radius: 5px;
+}
+
 .SessionCollapsedEventGroup .SessionCollapsedEventGroup-pill {
     transition:
         opacity 150ms ease,

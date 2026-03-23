@@ -47,7 +47,7 @@ export function getSessionActionButtonClassName(
     ...classNames: Array<string | false | null | undefined>
 ) {
     return joinClassNames(
-        "rounded-full border px-3 py-1.5 font-medium",
+        "rounded-full border px-3 py-1 font-medium",
         focusRingClassName,
         ...classNames,
     )

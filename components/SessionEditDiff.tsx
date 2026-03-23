@@ -105,7 +105,7 @@ export function SessionEditDiff({
                 eventPartSectionClassName,
             )}
         >
-            <div className="relative overflow-hidden rounded-2xl border border-zinc-700 bg-[#20281f] font-mono text-sm text-zinc-200 shadow-inner">
+            <div className="relative overflow-hidden rounded-2xl border border-zinc-700 bg-[#20281f] font-mono text-sm text-zinc-200">
                 <span className={badgeClassName}>{contentType}</span>
                 <div
                     className={joinClassNames(

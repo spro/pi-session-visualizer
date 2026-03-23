@@ -15,7 +15,7 @@ export function SessionCollapsedEventGroup({
     const summary = getCollapsedGroupSummary(events)
 
     return (
-        <details className="SessionCollapsedEventGroup mx-auto w-full max-w-4xl rounded-3xl">
+        <details className="SessionCollapsedEventGroup mx-auto w-full">
             <summary className="cursor-pointer list-none">
                 <div className="flex flex-col items-center justify-center">
                     <div>
@@ -72,7 +72,7 @@ export function SessionCollapsedEventGroup({
                     </div>
                 </div>
             </summary>
-            <div className="mt-4 border-t border-zinc-200 dark:border-zinc-800">
+            <div className="mt-4 border-zinc-200 dark:border-zinc-800 space-y-3">
                 {events.map((event) => (
                     <SessionEventCard
                         key={event.id}

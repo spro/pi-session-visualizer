@@ -64,7 +64,7 @@ export default async function Home({ searchParams }: HomeProps) {
     return (
         <>
             <SessionNavigationPanel />
-            <main className="Home mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
+            <main className="Home mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-4 p-6">
                 <SessionFileSwitcher
                     sessionFiles={sessionFiles}
                     currentSessionFile={

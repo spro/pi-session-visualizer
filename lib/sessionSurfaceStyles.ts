@@ -12,7 +12,7 @@ export function getSessionSurfaceClassName(
     ...classNames: Array<string | false | null | undefined>
 ) {
     return joinClassNames(
-        "rounded-3xl border shadow-sm",
+        "rounded-xl border",
         sessionSurfaceToneClasses[tone],
         ...classNames,
     )

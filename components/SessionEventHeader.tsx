@@ -37,11 +37,11 @@ export function SessionEventHeader({
     const suffix = getEventLabelSuffix(event)
     const showStopLabel = shouldShowStopLabel(event)
     const rawJsonButtonClassName = showRawJson
-        ? "border-zinc-200 bg-white text-zinc-950 shadow-sm dark:border-zinc-600 dark:bg-zinc-100 dark:text-zinc-950"
+        ? "border-zinc-200 bg-white text-zinc-950 dark:border-zinc-600 dark:bg-zinc-100 dark:text-zinc-950"
         : "border-zinc-200 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
 
     return (
-        <div className="SessionEventHeader flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="SessionEventHeader flex flex-col gap-3 p-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                     <span
@@ -96,7 +96,7 @@ export function SessionEventHeader({
                         rawJsonButtonClassName,
                     )}
                 >
-                    raw json
+                    raw
                 </button>
                 <SessionRelativeTime value={event.timestamp} />
                 <span>&bull;</span>

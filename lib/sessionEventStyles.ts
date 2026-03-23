@@ -49,10 +49,10 @@ const badgeToneTextClasses = {
 type BadgeTone = keyof typeof badgeToneClasses
 type SurfaceTintTone = keyof typeof surfaceTintClasses
 
-export const eventPartSectionClassName = "px-6 py-5"
+export const eventPartSectionClassName = "px-5 py-4"
 export const eventPartBadgeOffsetClassName = "top-5 right-6"
 export const eventPartBadgeContentInsetClassName = "pr-20"
-export const sessionTimeClassName = "font-mono text-zinc-400"
+export const sessionTimeClassName = "font-mono text-zinc-400 text-xs"
 
 function getBadgeToneClass(tone: BadgeTone) {
     return badgeToneClasses[tone]

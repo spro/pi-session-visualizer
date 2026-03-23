@@ -5,7 +5,7 @@ export function SessionWorkingState() {
         <section
             className={getSessionSurfaceClassName(
                 "sky",
-                "SessionWorkingState flex items-center gap-3 p-6",
+                "SessionWorkingState flex items-center gap-3 p-4",
             )}
         >
             <span className="relative flex size-3 shrink-0">
