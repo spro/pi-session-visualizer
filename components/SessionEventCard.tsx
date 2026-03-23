@@ -17,6 +17,7 @@ export function SessionEventCard({
     event,
     defaultOpen,
 }: SessionEventCardProps) {
+    const [isOpen, setIsOpen] = useState(Boolean(defaultOpen))
     const [showRawJson, setShowRawJson] = useState(false)
     const rawJson = useMemo(
         () => stringifyJson(event.rawEntry),
@@ -33,7 +34,8 @@ export function SessionEventCard({
 
     return (
         <details
-            open={defaultOpen}
+            open={isOpen}
+            onToggle={(toggleEvent) => setIsOpen(toggleEvent.currentTarget.open)}
             tabIndex={-1}
             data-session-event-id={event.id}
             data-session-event-role={event.role ?? "unknown"}
@@ -51,6 +53,7 @@ export function SessionEventCard({
             <summary className="cursor-pointer list-none">
                 <SessionEventHeader
                     event={event}
+                    isOpen={isOpen}
                     showRawJson={showRawJson}
                     onToggleRawJson={toggleRawJson}
                 />

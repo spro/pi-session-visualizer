@@ -2,7 +2,10 @@ import type { ReactNode } from "react"
 import { Streamdown } from "streamdown"
 import { SessionEditDiff } from "@/components/SessionEditDiff"
 import { SessionToolCallDetails } from "@/components/SessionToolCallDetails"
-import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
+import {
+    getEventBodyClassName,
+    getEventDisplayText,
+} from "@/lib/sessionEventHelpers"
 import {
     eventPartBadgeOffsetClassName,
     eventPartSectionClassName,
@@ -130,6 +133,7 @@ export function SessionEventPartContent({
     const toolResultPartClassName = isToolResult
         ? getToolResultPartTintClass(event.toolName, event.isError)
         : undefined
+    const displayBody = getEventDisplayText(event, part.body)
 
     if (part.type === "diff") {
         return (
@@ -159,7 +163,7 @@ export function SessionEventPartContent({
                 contentType={contentType}
                 className={getSurfaceTintClass("purple")}
             >
-                {renderMarkdown(part.body)}
+                {renderMarkdown(displayBody)}
             </SessionEventPartContainer>
         )
     }
@@ -183,11 +187,11 @@ export function SessionEventPartContent({
                     className={toolResultPartClassName}
                 >
                     {isMarkdownToolResult(event.toolName)
-                        ? renderMarkdown(part.body, plainTextClassName)
+                        ? renderMarkdown(displayBody, plainTextClassName)
                         : renderPreformatted(
                               shouldTrimToolResultBody(event.toolName)
-                                  ? part.body.trim()
-                                  : part.body,
+                                  ? displayBody.trim()
+                                  : displayBody,
                           )}
                 </SessionEventPartContainer>
             )
@@ -203,7 +207,7 @@ export function SessionEventPartContent({
                             : undefined
                     }
                 >
-                    {renderMarkdown(part.body)}
+                    {renderMarkdown(displayBody)}
                 </SessionEventPartContainer>
             )
         }
@@ -214,14 +218,14 @@ export function SessionEventPartContent({
             contentType={contentType}
             className={toolResultPartClassName}
         >
-            {renderPreformatted(part.body)}
+            {renderPreformatted(displayBody)}
         </SessionEventPartContainer>
     ) : (
         <SessionEventPartContainer
             contentType={contentType}
             innerClassName={getEventBodyClassName(event.isError)}
         >
-            {part.body || "(empty)"}
+            {displayBody || "(empty)"}
         </SessionEventPartContainer>
     )
 }

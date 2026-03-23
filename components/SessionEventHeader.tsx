@@ -3,11 +3,13 @@ import {
     getEventContentTypeSummaries,
     getEventLabelSuffix,
     getEventRoleLabel,
+    getEventSkillLabel,
 } from "@/lib/sessionEventHelpers"
 import { shouldShowStopLabel } from "@/lib/sessionEventPredicates"
 import {
     getContentTypeBadgeClass,
     getRoleBadgeClass,
+    getSkillBadgeClass,
     getStatusBadgeClass,
     shouldShowPartContentTypeBadge,
 } from "@/lib/sessionEventStyles"
@@ -20,12 +22,14 @@ import type { SessionEvent } from "@/lib/types"
 
 type SessionEventHeaderProps = {
     event: SessionEvent
+    isOpen: boolean
     showRawJson: boolean
     onToggleRawJson: (event: MouseEvent<HTMLButtonElement>) => void
 }
 
 export function SessionEventHeader({
     event,
+    isOpen,
     showRawJson,
     onToggleRawJson,
 }: SessionEventHeaderProps) {
@@ -34,6 +38,7 @@ export function SessionEventHeader({
         ({ contentType }) => shouldShowPartContentTypeBadge(contentType),
     )
     const roleLabel = getEventRoleLabel(event)
+    const skillLabel = getEventSkillLabel(event)
     const suffix = getEventLabelSuffix(event)
     const showStopLabel = shouldShowStopLabel(event)
     const rawJsonButtonClassName = showRawJson
@@ -51,6 +56,15 @@ export function SessionEventHeader({
                     >
                         {roleLabel}
                     </span>
+                    {skillLabel ? (
+                        <span
+                            className={getSessionPillBadgeClassName(
+                                getSkillBadgeClass(),
+                            )}
+                        >
+                            {skillLabel}
+                        </span>
+                    ) : null}
                     {showStopLabel ? (
                         <span
                             className={getSessionPillBadgeClassName(
@@ -60,7 +74,7 @@ export function SessionEventHeader({
                             stop
                         </span>
                     ) : null}
-                    {suffix ? (
+                    {suffix && !isOpen ? (
                         <span
                             title={suffix}
                             className="max-w-full truncate text-zinc-500 dark:text-zinc-400 sm:max-w-[32rem]"

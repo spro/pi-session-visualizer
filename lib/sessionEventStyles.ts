@@ -186,6 +186,10 @@ export function getStatusBadgeClass() {
     return getBadgeToneClass("zinc")
 }
 
+export function getSkillBadgeClass() {
+    return getBadgeToneClass("fuchsia")
+}
+
 export function getCollapsedSummaryLabelClass(
     kind: SessionCollapsedGroupSecondaryLabelKind,
 ) {

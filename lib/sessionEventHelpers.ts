@@ -80,6 +80,14 @@ function getToolCallPreview(data: unknown) {
 }
 
 function getEventPreview(event: SessionEvent) {
+    if (event.role === "user") {
+        const preview = normalizePreview(getUserEventPreviewText(event))
+
+        if (preview) {
+            return truncatePreview(preview)
+        }
+    }
+
     if (event.body?.trim()) {
         return truncatePreview(normalizePreview(event.body))
     }
@@ -119,6 +127,58 @@ function getEventPreview(event: SessionEvent) {
     }
 
     return ""
+}
+
+const skillTagPattern = /<skill\b[^>]*>/i
+const skillNamePattern = /<skill\b[^>]*\bname=(?:"([^"]+)"|'([^']+)')[^>]*>/i
+const skillMarkupPattern = /<\/?skill\b[^>]*>/gi
+const skillReferenceLinePattern =
+    /^\s*References are relative to .*$/gim
+
+function getUserEventSourceText(event: SessionEvent) {
+    return [
+        event.body,
+        ...event.parts
+            .filter((part) => part.type === "text" || part.type === "string")
+            .map((part) => part.body),
+    ]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join("\n")
+}
+
+function hasSkillPrompt(event: SessionEvent) {
+    return event.role === "user" && skillTagPattern.test(getUserEventSourceText(event))
+}
+
+function stripSkillScaffolding(value: string) {
+    return value
+        .replace(skillMarkupPattern, "")
+        .replace(skillReferenceLinePattern, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+}
+
+function getUserEventPreviewText(event: SessionEvent) {
+    return stripSkillScaffolding(getUserEventSourceText(event))
+}
+
+export function getEventDisplayText(event: SessionEvent, value: string) {
+    if (!hasSkillPrompt(event)) {
+        return value
+    }
+
+    return stripSkillScaffolding(value)
+}
+
+export function getEventSkillLabel(event: SessionEvent) {
+    if (!hasSkillPrompt(event)) {
+        return null
+    }
+
+    const match = getUserEventSourceText(event).match(skillNamePattern)
+    const skillName = (match?.[1] ?? match?.[2] ?? "").trim()
+
+    return skillName ? `skill · ${skillName}` : "skill"
 }
 
 export function getEventRoleLabel(event: SessionEvent) {

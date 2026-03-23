@@ -4,7 +4,10 @@ import {
 } from "@/lib/sessionEventStyles"
 import { getSessionAbsoluteBadgeClassName } from "@/lib/sessionUiStyles"
 import { SessionEventPartContent } from "@/components/SessionEventPartContent"
-import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
+import {
+    getEventBodyClassName,
+    getEventDisplayText,
+} from "@/lib/sessionEventHelpers"
 import type { SessionEvent } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -26,6 +29,7 @@ export function SessionEventContent({
     rawJson,
     showRawJson,
 }: SessionEventContentProps) {
+    const displayBody = event.body ? getEventDisplayText(event, event.body) : ""
     if (showRawJson) {
         return (
             <div className={eventSectionClassName}>
@@ -59,7 +63,7 @@ export function SessionEventContent({
     return (
         <div className={eventSectionInsetClassName}>
             <pre className={getEventBodyClassName(event.isError)}>
-                {event.body || "(empty)"}
+                {displayBody || "(empty)"}
             </pre>
         </div>
     )
