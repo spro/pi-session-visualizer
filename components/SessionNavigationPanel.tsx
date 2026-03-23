@@ -35,16 +35,16 @@ const selectorJumpActions: SelectorJumpAction[] = [
         selector: '[data-session-event-role="user"]',
     },
     {
-        description: "stop message",
+        description: "agent message",
         direction: "previous",
-        label: "Prev stop msg",
+        label: "Prev agent msg",
         selector:
             '[data-session-event-role="assistant"][data-session-stop-reason="stop"]',
     },
     {
-        description: "stop message",
+        description: "agent message",
         direction: "next",
-        label: "Next stop msg",
+        label: "Next agent msg",
         selector:
             '[data-session-event-role="assistant"][data-session-stop-reason="stop"]',
     },
@@ -86,9 +86,11 @@ function findElement(elements: HTMLElement[], direction: "previous" | "next") {
 
     return (
         candidates.find((element) => {
-            const top = element.getBoundingClientRect().top + window.scrollY
+            const rect = element.getBoundingClientRect()
+            const top = rect.top + window.scrollY
+            const bottom = rect.bottom + window.scrollY
 
-            return direction === "next" ? top > currentY : top < currentY
+            return direction === "next" ? top > currentY : bottom < currentY
         }) ??
         (direction === "next" ? elements[0] : elements[elements.length - 1])
     )
