@@ -6,7 +6,7 @@ import { SessionEventHeader } from "@/components/SessionEventHeader"
 import { getEventCardBorderClass } from "@/lib/sessionEventStyles"
 import { getSessionSurfaceClassName } from "@/lib/sessionSurfaceStyles"
 import type { SessionEvent } from "@/lib/types"
-import { joinClassNames, stringifyJson } from "@/lib/utils"
+import { cn, stringifyJson } from "@/lib/utils"
 
 type SessionEventCardProps = {
     event: SessionEvent
@@ -41,7 +41,7 @@ export function SessionEventCard({
             data-session-user-message={isUserMessage ? "true" : undefined}
             className={getSessionSurfaceClassName(
                 "default",
-                joinClassNames(
+                cn(
                     "SessionEventCard overflow-hidden",
                     borderClassName,
                     isUserMessage ? "ml-auto w-full max-w-[88%]" : "w-full",

@@ -7,7 +7,7 @@ import {
     sessionPanelFieldShellClassName,
     sessionPanelIconButtonClassName,
 } from "@/lib/sessionUiStyles"
-import { joinClassNames } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 
 type SelectorJumpAction = {
     description: string
@@ -173,7 +173,7 @@ export function SessionNavigationPanel() {
     }
 
     const buttonClassName = sessionPanelButtonClassName
-    const iconButtonClassName = joinClassNames(buttonClassName, "gap-3")
+    const iconButtonClassName = cn(buttonClassName, "gap-3")
     const panelHandleClassName = sessionPanelIconButtonClassName
 
     return (

@@ -69,3 +69,7 @@ As a rule of thumb:
 - reusable logic goes in `lib/`
 - UI goes in `components/`
 - App Router entrypoints stay in `app/`
+
+## Styling convention
+
+Use `cn()` from `lib/utils.ts` when combining Tailwind class names. It wraps `tailwind-merge`, so conditional and override classes merge correctly instead of conflicting silently.

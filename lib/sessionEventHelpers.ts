@@ -1,4 +1,5 @@
 import type { SessionEvent } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 const baseEventBodyClassName =
     "overflow-x-auto whitespace-pre-wrap break-words rounded-2xl p-4 text-sm leading-6"
@@ -168,9 +169,10 @@ export function getEventLabelSuffix(event: SessionEvent) {
 }
 
 export function getEventBodyClassName(isError?: boolean) {
-    return `${baseEventBodyClassName} ${
+    return cn(
+        baseEventBodyClassName,
         isError
             ? "bg-rose-50 text-rose-950 dark:bg-rose-950/30 dark:text-rose-100"
-            : "bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100"
-    }`
+            : "bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100",
+    )
 }

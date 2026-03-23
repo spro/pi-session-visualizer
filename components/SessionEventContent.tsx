@@ -6,6 +6,7 @@ import { getSessionAbsoluteBadgeClassName } from "@/lib/sessionUiStyles"
 import { SessionEventPartContent } from "@/components/SessionEventPartContent"
 import { getEventBodyClassName } from "@/lib/sessionEventHelpers"
 import type { SessionEvent } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 type SessionEventContentProps = {
     event: SessionEvent
@@ -15,7 +16,10 @@ type SessionEventContentProps = {
 
 const eventSectionClassName =
     "SessionEventContent border-t border-zinc-200 dark:border-zinc-800"
-const eventSectionInsetClassName = `${eventSectionClassName} px-6 py-5`
+const eventSectionInsetClassName = cn(
+    eventSectionClassName,
+    "px-6 py-5",
+)
 
 export function SessionEventContent({
     event,

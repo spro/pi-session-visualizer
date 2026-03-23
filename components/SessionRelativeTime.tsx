@@ -2,7 +2,7 @@ import { sessionTimeClassName } from "@/lib/sessionEventStyles"
 import {
     formatRelativeTimestamp,
     formatTimestamp,
-    joinClassNames,
+    cn,
 } from "@/lib/utils"
 
 type SessionRelativeTimeProps = {
@@ -21,7 +21,7 @@ export function SessionRelativeTime({
             dateTime={value}
             title={exactTimestamp}
             suppressHydrationWarning
-            className={joinClassNames("SessionRelativeTime", className)}
+            className={cn("SessionRelativeTime", className)}
         >
             {formatRelativeTimestamp(value)}
         </time>

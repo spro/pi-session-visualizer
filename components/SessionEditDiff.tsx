@@ -4,7 +4,7 @@ import {
     eventPartSectionClassName,
     getPartContentTypeBadgeClass,
 } from "@/lib/sessionEventStyles"
-import { joinClassNames } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 
 type SessionEditDiffProps = {
     body: string
@@ -46,7 +46,7 @@ function renderDiffLines(lines: string[], tone: DiffTone) {
         return (
             <div
                 key={`${index}-${line}`}
-                className={joinClassNames(
+                className={cn(
                     "grid grid-cols-[auto_1fr] gap-3 px-2 py-0.5",
                     isRemoval
                         ? tone.removal
@@ -57,7 +57,7 @@ function renderDiffLines(lines: string[], tone: DiffTone) {
                             : tone.neutral,
                 )}
             >
-                <span className={joinClassNames("select-none", tone.marker)}>
+                <span className={cn("select-none", tone.marker)}>
                     {isRemoval ? "-" : isAddition ? "+" : " "}
                 </span>
                 <pre className="whitespace-pre-wrap break-words">
@@ -76,7 +76,7 @@ export function SessionEditDiff({
 }: SessionEditDiffProps) {
     const lines = body.split("\n")
     const tone = flat ? flatTone : framedTone
-    const badgeClassName = joinClassNames(
+    const badgeClassName = cn(
         getPartContentTypeBadgeClass(contentType),
         flat ? eventPartBadgeOffsetClassName : "top-3 right-4",
     )
@@ -85,7 +85,7 @@ export function SessionEditDiff({
     if (flat) {
         return (
             <div
-                className={joinClassNames(
+                className={cn(
                     "SessionEditDiff relative font-mono text-sm text-zinc-900 dark:text-zinc-100",
                     eventPartSectionClassName,
                     eventPartBadgeContentInsetClassName,
@@ -100,7 +100,7 @@ export function SessionEditDiff({
 
     return (
         <div
-            className={joinClassNames(
+            className={cn(
                 "SessionEditDiff",
                 eventPartSectionClassName,
             )}
@@ -108,7 +108,7 @@ export function SessionEditDiff({
             <div className="relative overflow-hidden rounded-2xl border border-zinc-700 bg-[#20281f] font-mono text-sm text-zinc-200">
                 <span className={badgeClassName}>{contentType}</span>
                 <div
-                    className={joinClassNames(
+                    className={cn(
                         "border-b border-zinc-700/80 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-zinc-400",
                         eventPartBadgeContentInsetClassName,
                     )}

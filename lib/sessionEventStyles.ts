@@ -46,8 +46,20 @@ const badgeToneTextClasses = {
     zinc: "text-zinc-600 dark:text-zinc-300",
 } as const
 
+const surfaceBorderToneClasses = {
+    sky: "border-sky-300 dark:border-sky-900",
+    emerald: "border-emerald-300 dark:border-emerald-900",
+    fuchsia: "border-fuchsia-300 dark:border-fuchsia-900",
+    amber: "border-amber-300 dark:border-amber-900",
+    teal: "border-teal-300 dark:border-teal-900",
+    violet: "border-violet-300 dark:border-violet-900",
+    rose: "border-rose-300 dark:border-rose-900",
+    zinc: "border-zinc-200 dark:border-zinc-800",
+} as const
+
 type BadgeTone = keyof typeof badgeToneClasses
 type SurfaceTintTone = keyof typeof surfaceTintClasses
+type SurfaceBorderTone = keyof typeof surfaceBorderToneClasses
 
 export const eventPartSectionClassName = "px-5 py-4"
 export const eventPartBadgeOffsetClassName = "top-5 right-6"
@@ -60,6 +72,10 @@ function getBadgeToneClass(tone: BadgeTone) {
 
 function getBadgeToneTextClass(tone: BadgeTone) {
     return badgeToneTextClasses[tone]
+}
+
+function getSurfaceBorderToneClass(tone: SurfaceBorderTone) {
+    return surfaceBorderToneClasses[tone]
 }
 
 export function getSurfaceTintClass(tone: SurfaceTintTone) {
@@ -114,15 +130,23 @@ export function getRoleBadgeClass(event: SessionEvent, roleLabel?: string) {
 }
 
 export function getEventCardBorderClass(event: SessionEvent) {
+    if (event.isError) {
+        return getSurfaceBorderToneClass("rose")
+    }
+
     if (event.role === "user") {
-        return "border-sky-300 dark:border-sky-900"
+        return getSurfaceBorderToneClass("sky")
     }
 
-    if (isStopAssistantEvent(event)) {
-        return "border-violet-300 dark:border-violet-900"
+    if (event.role === "assistant" || isStopAssistantEvent(event)) {
+        return getSurfaceBorderToneClass("violet")
     }
 
-    return "border-zinc-200 dark:border-zinc-800"
+    if (event.role === "toolResult") {
+        return getSurfaceBorderToneClass(getToolResultTone(event.toolName))
+    }
+
+    return getSurfaceBorderToneClass("zinc")
 }
 
 export function getContentTypeBadgeClass(contentType: string) {

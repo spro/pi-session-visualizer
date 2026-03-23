@@ -2,7 +2,12 @@ import { SessionKeyValueRows } from "@/components/SessionKeyValueRows"
 import { getFallbackSessionTitle } from "@/lib/sessionFileMeta"
 import { getSessionSurfaceClassName } from "@/lib/sessionSurfaceStyles"
 import type { LoadedSession } from "@/lib/types"
-import { formatNumber, formatTimestamp, formatUsd } from "@/lib/utils"
+import {
+    formatNumber,
+    formatTimestamp,
+    formatUsd,
+    cn,
+} from "@/lib/utils"
 
 type SessionOverviewProps = {
     session: LoadedSession
@@ -82,7 +87,7 @@ export function SessionOverview({
         <section
             className={getSessionSurfaceClassName(
                 "default",
-                "SessionOverview p-4",
+                "SessionOverview border-zinc-200 p-4 dark:border-zinc-800",
             )}
         >
             <div className="flex flex-col gap-2">
@@ -104,7 +109,7 @@ export function SessionOverview({
                 </dl>
             </div>
             {usage ? (
-                <details className={`mt-4 ${detailsClassName}`}>
+                <details className={cn("mt-4", detailsClassName)}>
                     <summary className={summaryClassName}>
                         Usage details
                     </summary>
@@ -114,7 +119,7 @@ export function SessionOverview({
                     />
                 </details>
             ) : null}
-            <details className={`mt-4 ${detailsClassName}`}>
+            <details className={cn("mt-4", detailsClassName)}>
                 <summary className={summaryClassName}>Session details</summary>
                 <SessionKeyValueRows
                     items={detailItems}

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { joinClassNames } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 
 type SessionKeyValueRow = {
     label: string
@@ -28,7 +28,7 @@ export function SessionKeyValueRows({
     }
 
     return (
-        <div className={joinClassNames("SessionKeyValueRows", className)}>
+        <div className={cn("SessionKeyValueRows", className)}>
             {visibleItems.map(({ label, value, valueClassName }) => (
                 <div key={label}>
                     <span className={labelClassName}>{label}:</span>

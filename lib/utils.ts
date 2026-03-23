@@ -1,3 +1,5 @@
+import { twMerge } from "tailwind-merge"
+
 export function formatTimestamp(value: string) {
     return new Intl.DateTimeFormat("en", {
         dateStyle: "medium",
@@ -123,8 +125,8 @@ export function stringifyJson(value: unknown) {
     return JSON.stringify(value, null, 2)
 }
 
-export function joinClassNames(
+export function cn(
     ...values: Array<string | false | null | undefined>
 ) {
-    return values.filter(Boolean).join(" ")
+    return twMerge(values.filter(Boolean).join(" "))
 }

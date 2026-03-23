@@ -17,7 +17,7 @@ import {
     shouldTrimToolResultBody,
 } from "@/lib/sessionToolPresentation"
 import type { ImageContent, SessionEvent } from "@/lib/types"
-import { joinClassNames } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 
 type SessionEventPartContentProps = {
     part: SessionEvent["parts"][number]
@@ -43,7 +43,7 @@ function SessionEventPartContainer({
 }) {
     return (
         <div
-            className={joinClassNames(
+            className={cn(
                 "SessionEventPartContent relative",
                 eventPartSectionClassName,
                 className,
@@ -51,7 +51,7 @@ function SessionEventPartContainer({
         >
             {shouldShowPartContentTypeBadge(contentType) ? (
                 <span
-                    className={joinClassNames(
+                    className={cn(
                         getPartContentTypeBadgeClass(contentType),
                         eventPartBadgeOffsetClassName,
                     )}
@@ -60,7 +60,7 @@ function SessionEventPartContainer({
                 </span>
             ) : null}
             <div
-                className={joinClassNames(
+                className={cn(
                     innerClassName,
                     getPartContentInsetClassName(contentType),
                 )}
